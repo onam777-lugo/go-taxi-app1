@@ -19,7 +19,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Logo y Título
-st.title("🚕 GO TAXI")
+st.title("🏍️ GO TAXI")
 st.write("### ¡Tu transporte seguro en Portuguesa!")
 
 # Conexión al Sheets
