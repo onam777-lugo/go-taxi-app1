@@ -2,45 +2,40 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
-# 1. Configuración de la App
 st.set_page_config(page_title="GO TAXI", page_icon="🚖")
-st.markdown("<h1 style='text-align: center; color: #f1c40f;'>🚖 GO TAXI</h1>", unsafe_allow_html=True)
+st.title("🚖 GO TAXI - Píritu")
 
+# Conexión directa
 try:
-    # 2. Conexión al Excel
     conn = st.connection("gsheets", type=GSheetsConnection)
-    df = conn.read()
-    
-    # Limpiamos nombres de columnas (quita espacios y pone en mayúsculas)
-    df.columns = df.columns.str.strip().str.upper()
+    # Aquí forzamos el enlace directo por si los Secrets fallan
+    url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
+    df = conn.read(spreadsheet=url)
 
-    # 3. Lógica de Orden (Disponible arriba)
+    # Ordenar por Estatus
     prioridad = {'Disponible': 1, 'Ocupado': 2, 'No Laborando': 3}
     df['Orden'] = df['ESTATUS'].map(prioridad).fillna(4)
     df = df.sort_values('Orden')
 
-    # 4. Colores
     colores = {'Disponible': '#28a745', 'Ocupado': '#dc3545', 'No Laborando': '#6c757d'}
 
-    # 5. Dibujar las tarjetas
     for _, fila in df.iterrows():
         color = colores.get(fila['ESTATUS'], '#000000')
-        # Limpiar el número de teléfono
-        numero = str(fila['TELEFONO']).split('.')[0].replace(" ", "").replace("+", "")
+        # Limpiar número para WhatsApp
+        num = str(fila['TELEFONO']).split('.')[0]
         
         st.markdown(f"""
-            <div style="border-left: 10px solid {color}; padding: 15px; margin-bottom: 5px; border-radius: 10px; background-color: #f8f9fa; box-shadow: 2px 2px 5px rgba(0,0,0,0.1);">
-                <h3 style="margin:0; color: #333;">{fila['NOMBRE']}</h3>
+            <div style="border-left: 10px solid {color}; padding: 15px; margin-bottom: 10px; border-radius: 10px; background-color: #f8f9fa;">
+                <h3 style="margin:0;">{fila['NOMBRE']}</h3>
                 <p style="color: {color}; font-weight: bold; margin: 5px 0;">● {fila['ESTATUS']}</p>
             </div>
         """, unsafe_allow_html=True)
         
         c1, c2 = st.columns(2)
         with c1:
-            st.link_button(f"📞 LLAMAR", f"tel:{numero}", use_container_width=True)
+            st.link_button(f"📞 LLAMAR", f"tel:{num}", use_container_width=True)
         with c2:
-            st.link_button(f"💬 WHATSAPP", f"https://wa.me/{numero}?text=Hola,%20necesito%20un%20servicio%20de%20GO%20TAXI", use_container_width=True)
-        st.markdown("---")
+            st.link_button(f"💬 WHATSAPP", f"https://wa.me/58{num}", use_container_width=True)
 
 except Exception as e:
-    st.warning("Configurando conexión... Por favor, añade el link del Excel en los Secrets de Streamlit.")
+    st.error(f"Error de conexión: {e}")
