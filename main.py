@@ -65,7 +65,7 @@ try:
         # Tarjeta visual
         st.markdown(f"""
             <div class="driver-card" style="border-left: 10px solid {color_borde};">
-                <h3 style="margin:0;">👤 {fila['NOMBRE']}</h3>
+                <h3 style="margin:0;"> {fila['NOMBRE']}</h3>
                 <p style="color: {color_borde}; font-weight: bold; margin: 5px 0;">● {fila['ESTATUS']}</p>
             </div>
         """, unsafe_allow_html=True)
