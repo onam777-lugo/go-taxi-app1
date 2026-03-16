@@ -12,30 +12,30 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM Y ELIMINACIÓN DE BARRA BLANCA
+# 2. LIMPIEZA TOTAL DE INTERFAZ (Elimina barra blanca y menús)
 st.markdown("""
     <style>
-    /* Ocultar barra blanca superior y elementos de Streamlit */
+    /* Ocultar barra superior blanca de Streamlit */
     header, [data-testid="stHeader"], .stAppHeader {
         display: none !important;
         visibility: hidden !important;
     }
     
-    /* Eliminar espacio en blanco superior */
+    /* Eliminar espacio superior sobrante */
     .stApp {
         background-color: #FF8C00;
         margin-top: -60px !important;
     }
 
-    /* Ocultar menú y footer */
+    /* Ocultar menú de opciones y footer */
     #MainMenu, footer { visibility: hidden; }
     
     .block-container { 
-        padding-top: 0rem !important; 
+        padding-top: 0.5rem !important; 
         max-width: 450px !important; 
     }
 
-    /* Estilo de Títulos */
+    /* Títulos */
     .brand-title { 
         text-align: center; 
         color: white !important; 
@@ -54,44 +54,60 @@ st.markdown("""
         margin-bottom: 25px; 
     }
 
-    /* Banner de Tarifa */
+    /* Banner Negro de Tarifa */
     .tarifa-container {
-        background-color: black; color: white; padding: 12px; border-radius: 15px;
-        text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);
+        background-color: black; 
+        color: white; 
+        padding: 12px; 
+        border-radius: 15px;
+        text-align: center; 
+        margin-bottom: 25px; 
+        border: 1px solid rgba(255,255,255,0.2);
     }
 
-    /* Tarjetas de Choferes */
+    /* Tarjetas de Choferes Estilo Crema */
     .driver-card {
         background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 15px; border-radius: 15px; border-left: 12px solid var(--status-color);
-        margin-bottom: 15px; box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+        padding: 15px; 
+        border-radius: 15px; 
+        border-left: 12px solid var(--status-color);
+        margin-bottom: 15px; 
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
     }
     
     .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
     
-    .stExpander { background-color: #FEE0C0 !important; border: none !important; border-radius: 0 0 15px 15px !important; margin-bottom: 20px; }
+    /* Estilo del Expander */
+    .stExpander { 
+        background-color: #FEE0C0 !important; 
+        border: none !important; 
+        border-radius: 0 0 15px 15px !important; 
+        margin-bottom: 20px; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Títulos Principales
+# Títulos
 st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 try:
-    # Conexión silenciosa
+    # 3. CONEXIÓN Y LECTURA (Solo Sheet1)
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     
-    # Lectura de datos
     df = conn.read(spreadsheet=url, worksheet="Sheet1", ttl=0) 
     
-    # Tarifa desde el encabezado J (Columna 10)
+    # --- TARIFA PROTEGIDA ---
+    # Leemos el precio desde el NOMBRE de la columna J (índice 9)
+    # Esto evita que se borre al eliminar filas de choferes.
     try:
         precio_hoy = df.columns[9] if len(df.columns) > 9 else "Consultar"
     except:
         precio_hoy = "Consultar"
 
+    # Banner de Tarifa
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:700; color:#FF8C00; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
@@ -99,13 +115,16 @@ try:
         </div>
     """, unsafe_allow_html=True)
 
-    # Lógica de Choferes
+    # --- LISTADO DE FLOTA ---
     df.columns = df.columns.str.strip().str.upper()
+    
+    # Horario Venezuela
     tz = pytz.timezone('America/Caracas')
-    es_noche = datetime.now(tz).hour >= 21 or datetime.now(tz).hour < 6
+    hora_actual = datetime.now(tz).hour
+    es_noche = hora_actual >= 21 or hora_actual < 6
 
     if es_noche:
-        st.error("🌙 SERVICIO CERRADO (9PM - 6AM)")
+        st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
     secciones = [
@@ -121,7 +140,7 @@ try:
                 st.markdown(f"<p style='color: white; font-weight: 800; margin-left: 5px;'>{sec['label']}</p>", unsafe_allow_html=True)
                 for _, fila in grupo.iterrows():
                     telf = str(fila['TELEFONO']).split('.')[0]
-                    cod = str(fila['CODIGO']).split('.')[0]
+                    cod = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
                     
                     st.markdown(f"""
                         <div class="driver-card {'has-expander' if sec['key'] != 'No Laborando' else ''}" style="--status-color: {sec['color']};">
@@ -138,5 +157,4 @@ try:
                             c2.link_button("WHATSAPP", f"https://wa.me/58{telf}", use_container_width=True)
 
 except Exception as e:
-    # Mensaje de carga discreto si algo falla temporalmente
-    st.markdown("<p style='text-align:center; color:white; font-size:12px;'>Actualizando conexión con la flota...</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:white; font-size:12px;'>Sincronizando con la central...</p>", unsafe_allow_html=True)
