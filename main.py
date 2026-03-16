@@ -1,85 +1,56 @@
 import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
-from datetime import datetime
-import pytz
 
-# CONFIGURACIÓN BÁSICA
-st.set_page_config(page_title="GO TAXI", page_icon="logo.jpg", layout="centered")
+st.set_page_config(page_title="GO TAXI PÍRITU", page_icon="logo.jpg", layout="centered")
 
-# CONEXIÓN
+# Conexión
 url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# VARIABLES POR DEFECTO
-df = pd.DataFrame()
-precio_actual = "465" # Valor por si falla la conexión inicial
-
-# CARGA DE DATOS
+# Carga de datos
 try:
-    # Carga Choferes
     df = conn.read(spreadsheet=url, worksheet="Sheet1", ttl=0)
-    df.columns = df.columns.str.strip().str.upper()
-    
-    # Carga Precio (Hoja CONFIG)
     df_config = conn.read(spreadsheet=url, worksheet="CONFIG", ttl=0)
-    precio_actual = str(df_config.iloc[0, 1])
-except Exception:
-    st.warning("⚠️ Sincronizando con la central de Píritu...")
+    precio = str(df_config.iloc[0, 1])
+except:
+    precio = "---"
 
-# DISEÑO
+# Estilo Naranja y Negro
 st.markdown(f"""
     <style>
     .stApp {{ background-color: #FF8C00; }}
-    .precio-banner {{
-        background-color: black; color: #FF8C00; padding: 15px; border-radius: 15px; 
-        text-align: center; margin-bottom: 20px; border: 2px solid white;
-    }}
-    .driver-card {{ 
-        background-color: #FEE0C0; padding: 15px; border-radius: 12px; 
-        border-left: 10px solid var(--status-color); margin-bottom: 10px; color: black;
-    }}
+    .banner {{ background-color: black; color: #FF8C00; padding: 20px; border-radius: 15px; text-align: center; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }}
+    .card {{ background-color: #FEE0C0; padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 10px solid #28a745; color: black; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }}
     </style>
+    <div class="banner">
+        <span style="color:white; font-weight:bold; letter-spacing: 2px;">GO TAXI PÍRITU</span><br>
+        <span style="color:white; font-size:12px;">TARIFA MÍNIMA HOY</span><br>
+        <b style="font-size:35px;">Bs. {precio}</b>
+    </div><br>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 style="text-align:center; color:white; font-weight:900;">GO TAXI</h1>', unsafe_allow_html=True)
-
-# BANNER DE TARIFA
-st.markdown(f'<div class="precio-banner"><span style="color:white;">TARIFA MÍNIMA HOY</span><br><b style="font-size:28px;">Bs. {precio_actual}</b></div>', unsafe_allow_html=True)
-
-# MOSTRAR CHOFERES
-if not df.empty and 'ESTATUS' in df.columns:
-    secciones = [
-        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
-        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
-    ]
-    for sec in secciones:
-        grupo = df[df['ESTATUS'] == sec['key']]
-        if not grupo.empty:
-            st.markdown(f"<b style='color: white;'>{sec['label']}</b>", unsafe_allow_html=True)
-            for _, fila in grupo.iterrows():
-                st.markdown(f'<div class="driver-card" style="--status-color: {sec["color"]};"><b>{fila["NOMBRE"]}</b><br>📱 {fila["TELEFONO"]}</div>', unsafe_allow_html=True)
-                if sec['key'] != "No Laborando":
-                    with st.expander("VER OPCIONES"):
-                        st.code(fila.get('DATOSPAGO', 'Consultar pago al chofer'), language=None)
-                        st.link_button("Llamar", f"tel:{fila['TELEFONO']}", use_container_width=True)
+# Lista de Choferes Disponibles
+if not df.empty:
+    df.columns = df.columns.str.strip().str.upper()
+    # Solo mostramos los que dicen "Disponible"
+    disponibles = df[df['ESTATUS'].str.contains('Disponible', case=False, na=False)]
+    
+    st.markdown("<h4 style='color:white; text-align:center;'>🚖 Unidades en Línea</h4>", unsafe_allow_html=True)
+    
+    for _, fila in disponibles.iterrows():
+        with st.container():
+            st.markdown(f"""
+                <div class="card">
+                    <b style="font-size:18px;">{fila['NOMBRE']}</b><br>
+                    <small>Código: #{fila['CODIGO']}</small><br>
+                    <span>📱 {fila['TELEFONO']}</span>
+                </div>
+            """, unsafe_allow_html=True)
+            with st.expander("SOLICITAR TAXI"):
+                st.write(f"**Datos de Pago:** {fila.get('DATOSPAGO', 'Consultar al chofer')}")
+                st.link_button(f"Llamar a {fila['NOMBRE']}", f"tel:{fila['TELEFONO']}", use_container_width=True)
 else:
-    st.info("Cargando flota de vehículos... Si no carga, verifica el nombre 'Sheet1' en tu Excel.")
+    st.info("Buscando unidades disponibles...")
 
-# ADMINISTRACIÓN
-st.markdown("---")
-with st.expander("🔐 GESTIÓN DE TARIFA"):
-    admin_pass = st.text_input("Contraseña", type="password")
-    if admin_pass == "Oo27636":
-        nuevo_precio = st.number_input("Nuevo precio (Bs.)", min_value=0, value=465)
-        if st.button("GUARDAR NUEVO PRECIO"):
-            try:
-                # Creamos el dato para actualizar
-                upd_df = pd.DataFrame([["PRECIO_CARRERA", nuevo_precio]], columns=["PARAMETRO", "VALOR"])
-                conn.update(spreadsheet=url, worksheet="CONFIG", data=upd_df)
-                st.success("¡Precio actualizado! Refresca la app.")
-                st.balloons()
-            except Exception:
-                st.error("Error al guardar. RECUERDA: En el botón azul 'Compartir' del Excel, debes poner 'Cualquier persona con el enlace' como EDITOR.")
-                
+st.markdown('<p style="text-align:center; color:white; font-size:10px; margin-top:50px;">Desarrollado por Workflow Designer Onam</p>', unsafe_allow_html=True)
