@@ -6,31 +6,67 @@ import pytz
 
 # 1. CONFIGURACIÓN DE LA APP
 st.set_page_config(
-    page_title="GO TAXI", 
-    page_icon="logo.jpg", 
+    page_title="¡Go! TAXI", 
+    page_icon="logo.jpeg", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM (Píritu Style)
+# 2. DISEÑO DE INTERFAZ PREMIUM (Píritu Style - Actualizado)
 st.markdown("""
     <style>
-    /* ELIMINAR BARRA BLANCA Y MENÚS */
-    header, [data-testid="stHeader"], .stAppHeader { display: none !important; visibility: hidden !important; }
+    /* ELIMINAR BARRA BLANCA Y MENÚS DE STREAMLIT */
+    header, [data-testid="stHeader"], .stAppHeader {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Fondo General y espacio superior para el título */
+    .stApp {
+        background-color: #FF8C00;
+        margin-top: -30px !important; /* Ajustado para eliminar la barra pero dejar aire */
+    }
+
     #MainMenu, footer { visibility: hidden; }
     
-    .stApp { background-color: #FF8C00; margin-top: -60px !important; }
-    .block-container { padding-top: 1rem !important; max-width: 450px !important; }
+    .block-container { 
+        padding-top: 1rem !important; 
+        max-width: 450px !important; 
+    }
 
-    /* Cabecera */
-    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; padding-top: 40px; }
-    .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 20px; }
+    /* Cabecera - Bajamos el título */
+    .brand-title { 
+        text-align: center; 
+        color: white !important; 
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.4); 
+        margin-bottom: -10px; 
+        font-size: 42px; 
+        font-weight: 900; 
+        padding-top: 80px; /* AQUÍ BAJAMOS EL TÍTULO para que no se pegue */
+    }
+    .brand-subtitle { 
+        text-align: center; 
+        color: black !important; 
+        font-weight: 800; 
+        font-size: 14px; 
+        letter-spacing: 2px; 
+        margin-bottom: 25px; 
+    }
 
-    /* Banner de Tarifa (Negro Elegante) */
+    /* Banner de Tarifa (Más Pequeño y Transparente) */
     .tarifa-container {
-        background-color: black; color: white; padding: 12px; border-radius: 15px;
-        text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        /* Usamos rgba para transparencia: el último número (0.8) es la opacidad */
+        background-color: rgba(0, 0, 0, 0.8); 
+        color: white; 
+        padding: 8px 12px; /* Reducimos padding para hacerlo más pequeño */
+        border-radius: 12px; /* Bordes un poco menos redondeados para que se vea más pequeño */
+        text-align: center; 
+        margin-bottom: 25px; 
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Sombra más sutil */
+        width: 80%; /* Ocupa el 80% del ancho */
+        margin-left: auto; /* Centramos el banner */
+        margin-right: auto;
     }
 
     /* Tarjetas de Choferes */
@@ -55,7 +91,8 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+# Títulos Principales
+st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE DATOS Y HORARIO
 try:
@@ -70,10 +107,11 @@ try:
     except:
         precio_vuelo = "---"
 
+    # Mostramos la tarifa con el nuevo diseño
     st.markdown(f"""
         <div class="tarifa-container">
-            <p style="margin:0; font-size:11px; font-weight:700; color:#FF8C00; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
-            <p style="margin:0; font-size:26px; font-weight:900;">Bs. {precio_vuelo}</p>
+            <p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p>
+            <p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -121,7 +159,7 @@ try:
                             st.markdown("---")
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     st.markdown("""
         <div class="install-box">
