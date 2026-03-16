@@ -7,7 +7,7 @@ import pytz
 # 1. CONFIGURACIÓN DE LA APP (Esto activa el icono y el modo instalable)
 st.set_page_config(
     page_title="GO TAXI", 
-    page_icon="logo.jpg", # Asegúrate de que el nombre coincida con tu archivo en GitHub
+    page_icon="logo.jpeg", # Asegúrate de que el nombre coincida con tu archivo en GitHub
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -67,7 +67,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">🚖 GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE HORARIO VENEZUELA (9 PM a 6 AM)
 tz = pytz.timezone('America/Caracas')
@@ -128,7 +128,7 @@ try:
                         with c1: 
                             st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
                         with c2: 
-                            st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                            st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     # 6. BOTÓN DE RECLAMOS AL FINAL
     st.markdown("---")
