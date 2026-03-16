@@ -4,31 +4,30 @@ from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 import pytz
 
-# 1. CONFIGURACIÓN DE PÁGINA
+# CONFIGURACIÓN BÁSICA
 st.set_page_config(page_title="GO TAXI", page_icon="logo.jpg", layout="centered")
 
-# Variables de respaldo para evitar NameError
-df = pd.DataFrame()
-precio_actual = "Consultar"
-
-# Conexión
+# CONEXIÓN
 url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# 2. CARGA DE DATOS INTELIGENTE
+# VARIABLES POR DEFECTO
+df = pd.DataFrame()
+precio_actual = "465" # Valor por si falla la conexión inicial
+
+# CARGA DE DATOS
 try:
-    # Intentamos cargar la lista de choferes (Sheet1)
+    # Carga Choferes
     df = conn.read(spreadsheet=url, worksheet="Sheet1", ttl=0)
     df.columns = df.columns.str.strip().str.upper()
     
-    # Intentamos cargar el precio (CONFIG)
+    # Carga Precio (Hoja CONFIG)
     df_config = conn.read(spreadsheet=url, worksheet="CONFIG", ttl=0)
-    df_config.columns = df_config.columns.str.strip().str.upper()
-    precio_actual = df_config.iloc[0, 1] # Toma el valor de la segunda columna
-except Exception as e:
-    st.warning("⚠️ Sincronizando datos con la central...")
+    precio_actual = str(df_config.iloc[0, 1])
+except Exception:
+    st.warning("⚠️ Sincronizando con la central de Píritu...")
 
-# 3. ESTILOS VISUALES
+# DISEÑO
 st.markdown(f"""
     <style>
     .stApp {{ background-color: #FF8C00; }}
@@ -45,10 +44,10 @@ st.markdown(f"""
 
 st.markdown('<h1 style="text-align:center; color:white; font-weight:900;">GO TAXI</h1>', unsafe_allow_html=True)
 
-# Banner de Tarifa
+# BANNER DE TARIFA
 st.markdown(f'<div class="precio-banner"><span style="color:white;">TARIFA MÍNIMA HOY</span><br><b style="font-size:28px;">Bs. {precio_actual}</b></div>', unsafe_allow_html=True)
 
-# 4. LISTADO DE CHOFERES
+# MOSTRAR CHOFERES
 if not df.empty and 'ESTATUS' in df.columns:
     secciones = [
         {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
@@ -63,24 +62,24 @@ if not df.empty and 'ESTATUS' in df.columns:
                 st.markdown(f'<div class="driver-card" style="--status-color: {sec["color"]};"><b>{fila["NOMBRE"]}</b><br>📱 {fila["TELEFONO"]}</div>', unsafe_allow_html=True)
                 if sec['key'] != "No Laborando":
                     with st.expander("VER OPCIONES"):
-                        st.write(f"Pago: {fila.get('DATOSPAGO', 'Consultar')}")
+                        st.code(fila.get('DATOSPAGO', 'Consultar pago al chofer'), language=None)
                         st.link_button("Llamar", f"tel:{fila['TELEFONO']}", use_container_width=True)
 else:
-    st.info("Cargando flota de vehículos...")
+    st.info("Cargando flota de vehículos... Si no carga, verifica el nombre 'Sheet1' en tu Excel.")
 
-# 5. PANEL DE ADMINISTRADOR
+# ADMINISTRACIÓN
 st.markdown("---")
 with st.expander("🔐 GESTIÓN DE TARIFA"):
     admin_pass = st.text_input("Contraseña", type="password")
     if admin_pass == "Oo27636":
-        nuevo_precio = st.number_input("Establecer nuevo precio (Bs.)", min_value=0, value=460)
+        nuevo_precio = st.number_input("Nuevo precio (Bs.)", min_value=0, value=465)
         if st.button("GUARDAR NUEVO PRECIO"):
             try:
-                # Actualización forzada a la hoja CONFIG
-                df_upd = pd.DataFrame([["PRECIO_CARRERA", nuevo_precio]], columns=["PARAMETRO", "VALOR"])
-                conn.update(spreadsheet=url, worksheet="CONFIG", data=df_upd)
-                st.success("¡Precio actualizado! Reinicia la app para ver los cambios.")
+                # Creamos el dato para actualizar
+                upd_df = pd.DataFrame([["PRECIO_CARRERA", nuevo_precio]], columns=["PARAMETRO", "VALOR"])
+                conn.update(spreadsheet=url, worksheet="CONFIG", data=upd_df)
+                st.success("¡Precio actualizado! Refresca la app.")
                 st.balloons()
-            except Exception as e:
-                st.error("Error al guardar. Revisa que el Excel tenga permiso de 'Editor'.")
+            except Exception:
+                st.error("Error al guardar. RECUERDA: En el botón azul 'Compartir' del Excel, debes poner 'Cualquier persona con el enlace' como EDITOR.")
                 
