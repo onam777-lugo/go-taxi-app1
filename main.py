@@ -3,11 +3,17 @@ import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
 # 1. CONFIGURACIÓN Y ESTILO VISUAL
-st.set_page_config(page_title="GO TAXI", page_icon="🚖", layout="centered")
+st.set_page_config(
+    page_title="GO TAXI", 
+    page_icon="🚖", 
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
 st.markdown("""
     <style>
     .stApp { background-color: #FF8C00; }
+    
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -17,32 +23,39 @@ st.markdown("""
     .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0px; }
     .brand-subtitle { text-align: center; color: black !important; font-weight: bold; font-size: 12px; margin-bottom: 25px; }
 
-    /* Tarjeta Blanca del Chofer */
+    /* Tarjeta Color Crema (#FEE0C0) que pediste */
     .driver-info {
-        background-color: white;
+        background-color: #FEE0C0;
         padding: 12px;
         border-radius: 12px 12px 0 0;
-        border-left: 12px solid var(--status-color);
+        border-left: 10px solid var(--status-color);
         margin-bottom: -5px;
     }
     .name-bold { font-weight: bold; font-size: 18px; color: black !important; }
-    .code-badge { background-color: #f0f0f0; padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
-    .phone-small { font-weight: normal; font-size: 13px; color: #666 !important; display: block; margin-top: 2px; }
+    .code-badge { background-color: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
+    .phone-small { font-weight: normal; font-size: 13px; color: #444 !important; display: block; margin-top: 2px; }
 
-    /* Expander (La flechita) */
+    /* Expander con el mismo fondo crema para que parezca una sola pieza */
     .stExpander {
-        background-color: white !important;
+        background-color: #FEE0C0 !important;
         border: none !important;
         border-radius: 0 0 12px 12px !important;
         margin-bottom: 15px;
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }
     
-    /* Botones de Llamada y WhatsApp */
+    /* Botones de Acción */
     .stButton>button { border-radius: 10px !important; height: 45px !important; font-weight: bold !important; }
     
     /* Forzar visibilidad de textos */
     .stMarkdown p, .stMarkdown b { color: black !important; }
+
+    /* Botón de Reclamos al final */
+    .claim-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -73,27 +86,8 @@ try:
                 pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Datos no registrados."
                 codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
 
-                # FICHA VISUAL
+                # FICHA CON COLOR #FEE0C0
                 st.markdown(f"""
                     <div class="driver-info" style="--status-color: {sec['color']};">
                         <span class="name-bold">{fila['NOMBRE']}</span>
                         <span class="code-badge">#{codigo}</span>
-                        <span class="phone-small">{telf_fmt}</span>
-                    </div>
-                """, unsafe_allow_html=True)
-
-                # DESPLEGABLE CON COPIADO FÁCIL
-                with st.expander(" "):
-                    st.markdown("**💳 DATOS DE PAGO:**")
-                    # st.code crea el recuadro con el botón de "copiar" incluido
-                    st.code(pago, language=None) 
-                    
-                    st.markdown("---")
-                    c1, c2 = st.columns(2)
-                    with c1: 
-                        st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                    with c2: 
-                        st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
-
-except Exception as e:
-    st.error("Sincronizando choferes...")
