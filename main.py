@@ -2,58 +2,35 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
-# 1. CONFIGURACIÓN DE PÁGINA Y LIMPIEZA TOTAL
-st.set_page_config(
-    page_title="GO TAXI", 
-    page_icon="🚖",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+# 1. CONFIGURACIÓN Y LIMPIEZA
+st.set_page_config(page_title="GO TAXI", page_icon="🚖", layout="centered")
 
+# Estilos CSS
 st.markdown("""
     <style>
-    /* FONDO NARANJA */
     .stApp { background-color: #FF8C00; }
-    
-    /* ELIMINAR MENÚS Y BARRAS DE STREAMLIT */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* AJUSTE DE CONTENEDOR */
-    .block-container { 
-        padding-top: 1rem !important; 
-        max-width: 450px !important; 
-    }
+    .block-container { padding-top: 1rem !important; max-width: 450px !important; }
 
-    /* ESTILO DEL NOMBRE (Sin caja blanca) */
-    .brand-title {
-        text-align: center;
-        color: white !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        margin-bottom: 0px;
-    }
-    .brand-subtitle {
-        text-align: center;
-        color: black !important;
-        font-weight: bold;
-        font-size: 14px;
-        margin-bottom: 25px;
-        letter-spacing: 1px;
-    }
+    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0px; }
+    .brand-subtitle { text-align: center; color: black !important; font-weight: bold; font-size: 12px; margin-bottom: 20px; }
 
-    /* TARJETA DEL CHOFER */
+    /* Tarjeta Blanca */
     .driver-info {
         background-color: white;
-        padding: 15px;
+        padding: 12px;
         border-radius: 12px 12px 0 0;
         border-left: 12px solid var(--status-color);
         margin-bottom: -5px;
     }
-    .name-bold { font-weight: bold; font-size: 20px; color: black !important; display: block; }
-    .phone-small { font-weight: normal; font-size: 14px; color: #444 !important; }
+    .name-bold { font-weight: bold; font-size: 18px; color: black !important; }
+    .code-badge { background-color: #eee; padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
+    .phone-small { font-weight: normal; font-size: 13px; color: #666 !important; display: block; margin-top: 2px; }
 
-    /* DESPLEGABLE LIMPIO (Solo la flecha) */
+    /* Expander */
     .stExpander {
         background-color: white !important;
         border: none !important;
@@ -61,38 +38,29 @@ st.markdown("""
         margin-bottom: 15px;
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }
-    
-    /* BOTONES */
-    .stButton>button { 
-        border-radius: 10px !important; 
-        height: 45px !important; 
-        font-weight: bold !important; 
-    }
-    
-    /* Forzar color negro en textos dentro del expander */
+    .stButton>button { border-radius: 10px !important; height: 45px !important; font-weight: bold !important; }
     .stMarkdown p, .stMarkdown b { color: black !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# Encabezado estilizado sin fondo blanco
-st.markdown("""
-    <h1 class="brand-title">🚖 GO TAXI</h1>
-    <p class="brand-subtitle">PÍRITU - PORTUGUESA</p>
-    """, unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">🚖 GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
 
 try:
-    # 2. Conexión a los datos
+    # 2. CONEXIÓN CON LIMPIEZA DE CACHÉ (Para que el orden se actualice al instante)
     conn = st.connection("gsheets", type=GSheetsConnection)
+    
+    # ttl=0 obliga a la app a buscar datos nuevos del Excel cada vez que se refresca
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
-    df = conn.read(spreadsheet=url)
+    df = conn.read(spreadsheet=url, ttl=0) 
+    
     df.columns = df.columns.str.strip().str.upper()
 
-    # 3. Buscador
+    # Buscador
     busqueda = st.text_input("", placeholder="🔍 Buscar chofer...")
     if busqueda:
         df = df[df['NOMBRE'].str.contains(busqueda, case=False, na=False)]
 
-    # 4. Listado por secciones
+    # 3. SECCIONES (El orden de esta lista define qué aparece primero)
     secciones = [
         {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
         {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
@@ -100,31 +68,38 @@ try:
     ]
 
     for sec in secciones:
+        # Filtramos los choferes que pertenecen a esta sección actual
         grupo = df[df['ESTATUS'] == sec['key']]
+        
         if not grupo.empty:
             st.markdown(f"<b style='color: white !important; text-shadow: 1px 1px 2px black;'>{sec['label']}</b>", unsafe_allow_html=True)
             
             for _, fila in grupo.iterrows():
                 telf_raw = str(fila['TELEFONO']).split('.')[0]
                 telf_fmt = f"+58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}"
-                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Datos no registrados."
+                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Sin datos."
+                
+                # Obtener el código si existe la columna, si no poner "S/C"
+                codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
 
-                # Ficha superior blanca
+                # FICHA CON NOMBRE Y CÓDIGO
                 st.markdown(f"""
                     <div class="driver-info" style="--status-color: {sec['color']};">
                         <span class="name-bold">{fila['NOMBRE']}</span>
+                        <span class="code-badge">#{codigo}</span>
                         <span class="phone-small">{telf_fmt}</span>
                     </div>
                 """, unsafe_allow_html=True)
 
-                # Expander que completa la tarjeta
                 with st.expander(" "):
                     st.markdown(f"**💳 PAGO MÓVIL:**\n\n{pago}")
                     c1, c2 = st.columns(2)
-                    with c1: 
-                        st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                    with c2: 
-                        st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
-                
+                    with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                    with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+
+    # Botón manual de refrescar por si acaso
+    if st.button("🔄 Actualizar Lista"):
+        st.rerun()
+
 except Exception as e:
-    st.error("Sincronizando flota...")
+    st.error("Sincronizando...")
