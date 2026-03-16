@@ -59,7 +59,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">🚖 GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 try:
     # 2. CONEXIÓN A DATOS
@@ -104,7 +104,7 @@ try:
                     with c1: 
                         st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
                     with c2: 
-                        st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                        st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     # 4. BOTÓN DE RECLAMOS AL FINAL
     st.markdown("---")
