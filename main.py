@@ -15,99 +15,59 @@ st.set_page_config(
 # 2. LIMPIEZA TOTAL DE INTERFAZ (Elimina barra blanca y menús)
 st.markdown("""
     <style>
-    /* Ocultar barra superior blanca de Streamlit */
     header, [data-testid="stHeader"], .stAppHeader {
         display: none !important;
         visibility: hidden !important;
     }
     
-    /* Eliminar espacio superior sobrante */
     .stApp {
         background-color: #FF8C00;
         margin-top: -60px !important;
     }
 
-    /* Ocultar menú de opciones y footer */
     #MainMenu, footer { visibility: hidden; }
-    
-    .block-container { 
-        padding-top: 0.5rem !important; 
-        max-width: 450px !important; 
-    }
+    .block-container { padding-top: 0.5rem !important; max-width: 450px !important; }
 
-    /* Títulos */
-    .brand-title { 
-        text-align: center; 
-        color: white !important; 
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.4); 
-        margin-bottom: -10px; 
-        font-size: 42px; 
-        font-weight: 900; 
-        padding-top: 40px;
-    }
-    .brand-subtitle { 
-        text-align: center; 
-        color: black !important; 
-        font-weight: 800; 
-        font-size: 14px; 
-        letter-spacing: 2px; 
-        margin-bottom: 25px; 
-    }
+    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); font-size: 42px; font-weight: 900; padding-top: 40px; margin-bottom: -10px; }
+    .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }
 
-    /* Banner Negro de Tarifa */
     .tarifa-container {
-        background-color: black; 
-        color: white; 
-        padding: 12px; 
-        border-radius: 15px;
-        text-align: center; 
-        margin-bottom: 25px; 
-        border: 1px solid rgba(255,255,255,0.2);
+        background-color: black; color: white; padding: 12px; border-radius: 15px;
+        text-align: center; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.2);
     }
 
-    /* Tarjetas de Choferes Estilo Crema */
     .driver-card {
         background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 15px; 
-        border-radius: 15px; 
-        border-left: 12px solid var(--status-color);
-        margin-bottom: 15px; 
-        box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+        padding: 15px; border-radius: 15px; border-left: 12px solid var(--status-color);
+        margin-bottom: 15px; box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
     }
     
     .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
     
-    /* Estilo del Expander */
-    .stExpander { 
-        background-color: #FEE0C0 !important; 
-        border: none !important; 
-        border-radius: 0 0 15px 15px !important; 
-        margin-bottom: 20px; 
-    }
+    .stExpander { background-color: #FEE0C0 !important; border: none !important; border-radius: 0 0 15px 15px !important; margin-bottom: 20px; }
+    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# Títulos
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 try:
-    # 3. CONEXIÓN Y LECTURA (Solo Sheet1)
+    # 3. CONEXIÓN Y LECTURA
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     
+    # Leemos la hoja completa
     df = conn.read(spreadsheet=url, worksheet="Sheet1", ttl=0) 
     
-    # --- TARIFA PROTEGIDA ---
-    # Leemos el precio desde el NOMBRE de la columna J (índice 9)
-    # Esto evita que se borre al eliminar filas de choferes.
+    # --- LÓGICA DE TARIFA (CELDA J1 / Columna 9) ---
     try:
+        # Buscamos el valor en el encabezado de la columna J
         precio_hoy = df.columns[9] if len(df.columns) > 9 else "Consultar"
     except:
-        precio_hoy = "Consultar"
+        precio_hoy = "480"
 
-    # Banner de Tarifa
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:700; color:#FF8C00; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
@@ -115,13 +75,10 @@ try:
         </div>
     """, unsafe_allow_html=True)
 
-    # --- LISTADO DE FLOTA ---
+    # 4. PROCESO DE FLOTA
     df.columns = df.columns.str.strip().str.upper()
-    
-    # Horario Venezuela
     tz = pytz.timezone('America/Caracas')
-    hora_actual = datetime.now(tz).hour
-    es_noche = hora_actual >= 21 or hora_actual < 6
+    es_noche = datetime.now(tz).hour >= 21 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO</div>', unsafe_allow_html=True)
@@ -157,4 +114,4 @@ try:
                             c2.link_button("WHATSAPP", f"https://wa.me/58{telf}", use_container_width=True)
 
 except Exception as e:
-    st.markdown("<p style='text-align:center; color:white; font-size:12px;'>Sincronizando con la central...</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:white; font-size:12px;'>Sincronizando con la central de Píritu...</p>", unsafe_allow_html=True)
