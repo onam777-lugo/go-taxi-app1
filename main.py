@@ -59,7 +59,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">🚖 GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
 
 try:
     # 2. CONEXIÓN A DATOS
@@ -91,3 +91,26 @@ try:
                     <div class="driver-info" style="--status-color: {sec['color']};">
                         <span class="name-bold">{fila['NOMBRE']}</span>
                         <span class="code-badge">#{codigo}</span>
+                        <span class="phone-small">{telf_fmt}</span>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                with st.expander(" "):
+                    st.markdown("**💳 DATOS DE PAGO:**")
+                    st.code(pago, language=None) 
+                    
+                    st.markdown("---")
+                    c1, c2 = st.columns(2)
+                    with c1: 
+                        st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                    with c2: 
+                        st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+
+    # 4. BOTÓN DE RECLAMOS AL FINAL
+    st.markdown("---")
+    st.markdown('<div style="text-align: center; color: black; font-weight: bold;">¿Algún inconveniente?</div>', unsafe_allow_html=True)
+    st.link_button("📩 ENVIAR RECLAMO", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
+    st.markdown('<p style="text-align: center; font-size: 10px; color: black !important; margin-top: 10px;">Atención al cliente GO TAXI</p>', unsafe_allow_html=True)
+
+except Exception as e:
+    st.error("Error conectando con la flota de Píritu...")
