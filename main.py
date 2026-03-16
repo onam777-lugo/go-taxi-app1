@@ -2,57 +2,67 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
-# 1. Configuración de pantalla y ESTILO ULTRA-COMPACTO
+# 1. Configuración de pantalla y ESTILO FINAL PROFESIONAL
 st.set_page_config(page_title="GO TAXI", page_icon="🚖")
 
 st.markdown("""
     <style>
+    /* Fondo Naranja Global */
     .stApp { background-color: #FF8C00; }
     
-    /* Forzar texto negro y legible */
-    h1, h2, h3, p, b, span, label {
-        color: black !important;
-    }
+    /* Forzar texto negro en toda la app */
+    h1, h2, h3, p, b, span, label, .stMarkdown { color: black !important; }
 
-    /* Contenedor principal estrecho para móviles */
-    .block-container {
-        padding: 0.5rem !important;
-        max-width: 400px !important;
-    }
+    /* Contenedor estrecho para celulares */
+    .block-container { padding: 0.5rem !important; max-width: 400px !important; }
 
-    /* Estilo de la tarjeta del chofer (Expander) */
+    /* Estilo de Tarjeta Blanca (Expander) */
     .streamlit-expanderHeader {
         background-color: white !important;
-        border-radius: 10px !important;
-        border-left: 12px solid var(--border-color) !important;
-        padding: 8px !important;
+        color: black !important;
+        border-radius: 8px !important;
+        border-left: 10px solid var(--border-color) !important;
+        padding: 5px 10px !important;
+        font-weight: bold !important;
     }
     
     .streamlit-expanderContent {
-        background-color: #FFF9F2 !important;
-        border-radius: 0 0 10px 10px !important;
+        background-color: #fcfcfc !important;
         color: black !important;
-        border: 1px solid #ddd;
+        border-radius: 0 0 8px 8px !important;
     }
 
-    /* Botones de iconos pequeños */
+    /* Botones Circulares Pequeños */
     .stButton>button {
         background-color: white !important;
         border: 1px solid #ccc !important;
-        border-radius: 50% !important; /* Redondos como en tu imagen */
-        width: 45px !important;
-        height: 45px !important;
+        border-radius: 50% !important;
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 18px !important;
         padding: 0px !important;
+        box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Ajustar espacios */
-    .stVerticalBlock { gap: 0.3rem !important; }
-    hr { margin: 0.5rem 0 !important; border-top: 1px dashed rgba(0,0,0,0.2) !important; }
+    /* Títulos de Sección (Disponibles, etc) */
+    .section-header {
+        background-color: rgba(0,0,0,0.1);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px 0 5px 0;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    /* Espaciado ultra compacto */
+    .stVerticalBlock { gap: 0.2rem !important; }
+    hr { margin: 0.3rem 0 !important; border-top: 1px solid rgba(0,0,0,0.05) !important; }
     </style>
     """, unsafe_allow_html=True)
 
 st.markdown("<h2 style='text-align: center; margin: 0;'>🚖 GO TAXI</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 12px; margin-bottom: 10px;'>Píritu, Portuguesa</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 11px; margin-top: -5px;'>Píritu, Portuguesa</p>", unsafe_allow_html=True)
 
 try:
     # 2. Conexión
@@ -61,35 +71,38 @@ try:
     df = conn.read(spreadsheet=url)
     df.columns = df.columns.str.strip().str.upper()
 
-    # 3. Ordenar por Estatus
-    prioridad = {'Disponible': 1, 'Ocupado': 2, 'No Laborando': 3}
-    df['Orden'] = df['ESTATUS'].map(prioridad).fillna(4)
-    df = df.sort_values('Orden')
+    # 3. Definir secciones y colores
+    secciones = [
+        {"nombre": "🟢 DISPONIBLE", "estatus": "Disponible", "color": "#28a745"},
+        {"nombre": "🟡 OCUPADO", "estatus": "Ocupado", "color": "#f1c40f"},
+        {"nombre": "🔴 NO LABORANDO", "estatus": "No Laborando", "color": "#dc3545"}
+    ]
 
-    colores = {'Disponible': '#28a745', 'Ocupado': '#f1c40f', 'No Laborando': '#dc3545'}
-
-    # 4. Generar lista de choferes
-    for _, fila in df.iterrows():
-        status_color = colores.get(fila['ESTATUS'], '#6c757d')
-        telf = str(fila['TELEFONO']).split('.')[0]
-        pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "No registrado"
-
-        # Título de la tarjeta: Nombre y Estatus
-        label_chofer = f"{fila['NOMBRE']}  |  {fila['ESTATUS']}"
+    # 4. Mostrar por grupos
+    for sec in secciones:
+        grupo = df[df['ESTATUS'] == sec['estatus']]
         
-        st.markdown(f'<div style="--border-color: {status_color};">', unsafe_allow_html=True)
-        with st.expander(label_chofer):
-            st.markdown(f"**💳 Pago Móvil:**\n\n{pago}")
-        st.markdown('</div>', unsafe_allow_html=True)
+        if not grupo.empty:
+            st.markdown(f'<div class="section-header">{sec["nombre"]}</div>', unsafe_allow_html=True)
+            
+            for _, fila in grupo.iterrows():
+                telf = str(fila['TELEFONO']).split('.')[0]
+                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Pago móvil no registrado."
 
-        # Botones de contacto laterales
-        col_espacio, col_call, col_wa = st.columns([2, 1, 1])
-        with col_call:
-            st.link_button("📞", f"tel:{telf}", use_container_width=True)
-        with col_wa:
-            st.link_button("💬", f"https://wa.me/58{telf}", use_container_width=True)
-        
-        st.markdown("<hr>", unsafe_allow_html=True)
+                # Tarjeta del chofer
+                st.markdown(f'<div style="--border-color: {sec["color"]};">', unsafe_allow_html=True)
+                with st.expander(f"👤 {fila['NOMBRE']}"):
+                    st.markdown(f"**💳 Datos de Pago:**\n\n{pago}")
+                st.markdown('</div>', unsafe_allow_html=True)
+
+                # Iconos de contacto a la derecha
+                c_esp, c_call, c_wa = st.columns([3, 1, 1])
+                with c_call:
+                    st.link_button("📞", f"tel:{telf}", use_container_width=True)
+                with c_wa:
+                    st.link_button("💬", f"https://wa.me/58{telf}", use_container_width=True)
+                
+                st.markdown("<hr>", unsafe_allow_html=True)
 
 except Exception as e:
-    st.error("Cargando conductores...")
+    st.error("Sincronizando choferes...")
