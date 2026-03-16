@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from streamlit_gsheets import GSheetsConnection
 
-# 1. CONFIGURACIÓN Y ESTILO VISUAL (LIMPIO)
+# 1. CONFIGURACIÓN Y ESTILO VISUAL
 st.set_page_config(page_title="GO TAXI", page_icon="🚖", layout="centered")
 
 st.markdown("""
@@ -17,7 +17,7 @@ st.markdown("""
     .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0px; }
     .brand-subtitle { text-align: center; color: black !important; font-weight: bold; font-size: 12px; margin-bottom: 25px; }
 
-    /* Tarjeta Blanca */
+    /* Tarjeta Blanca del Chofer */
     .driver-info {
         background-color: white;
         padding: 12px;
@@ -26,10 +26,10 @@ st.markdown("""
         margin-bottom: -5px;
     }
     .name-bold { font-weight: bold; font-size: 18px; color: black !important; }
-    .code-badge { background-color: #eee; padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
+    .code-badge { background-color: #f0f0f0; padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
     .phone-small { font-weight: normal; font-size: 13px; color: #666 !important; display: block; margin-top: 2px; }
 
-    /* Expander */
+    /* Expander (La flechita) */
     .stExpander {
         background-color: white !important;
         border: none !important;
@@ -37,7 +37,11 @@ st.markdown("""
         margin-bottom: 15px;
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
     }
+    
+    /* Botones de Llamada y WhatsApp */
     .stButton>button { border-radius: 10px !important; height: 45px !important; font-weight: bold !important; }
+    
+    /* Forzar visibilidad de textos */
     .stMarkdown p, .stMarkdown b { color: black !important; }
     </style>
     """, unsafe_allow_html=True)
@@ -45,14 +49,13 @@ st.markdown("""
 st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 try:
-    # 2. CONEXIÓN CON ACTUALIZACIÓN INSTANTÁNEA (ttl=0)
+    # 2. CONEXIÓN A DATOS
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
-    
     df.columns = df.columns.str.strip().str.upper()
 
-    # 3. SECCIONES (Orden de aparición)
+    # 3. SECCIONES
     secciones = [
         {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
         {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
@@ -61,17 +64,16 @@ try:
 
     for sec in secciones:
         grupo = df[df['ESTATUS'] == sec['key']]
-        
         if not grupo.empty:
             st.markdown(f"<b style='color: white !important; text-shadow: 1px 1px 2px black; margin-left: 5px;'>{sec['label']}</b>", unsafe_allow_html=True)
             
             for _, fila in grupo.iterrows():
                 telf_raw = str(fila['TELEFONO']).split('.')[0]
                 telf_fmt = f"+58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}"
-                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Sin datos."
+                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Datos no registrados."
                 codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
 
-                # FICHA DE CONDUCTOR
+                # FICHA VISUAL
                 st.markdown(f"""
                     <div class="driver-info" style="--status-color: {sec['color']};">
                         <span class="name-bold">{fila['NOMBRE']}</span>
@@ -80,11 +82,18 @@ try:
                     </div>
                 """, unsafe_allow_html=True)
 
+                # DESPLEGABLE CON COPIADO FÁCIL
                 with st.expander(" "):
-                    st.markdown(f"**💳 PAGO MÓVIL:**\n\n{pago}")
+                    st.markdown("**💳 DATOS DE PAGO:**")
+                    # st.code crea el recuadro con el botón de "copiar" incluido
+                    st.code(pago, language=None) 
+                    
+                    st.markdown("---")
                     c1, c2 = st.columns(2)
-                    with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                    with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    with c1: 
+                        st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                    with c2: 
+                        st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
 except Exception as e:
     st.error("Sincronizando choferes...")
