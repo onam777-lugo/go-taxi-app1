@@ -77,7 +77,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Encabezado
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
 
 # Lógica de Horario Venezuela
 tz = pytz.timezone('America/Caracas')
@@ -129,7 +129,7 @@ try:
                         st.markdown("---")
                         c1, c2 = st.columns(2)
                         with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                        with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                        with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     # Instrucciones de Instalación
     st.markdown("""
