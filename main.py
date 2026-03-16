@@ -4,6 +4,18 @@ from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 import pytz
 
+# --- ESTA ES LA PARTE QUE DEBES PEGAR AL PRINCIPIO ---
+st.set_page_config(
+    page_title="GO TAXI", 
+    page_icon="logo.jpeg", # Si tu archivo en GitHub termina en .jpg, cámbialo aquí
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+# ----------------------------------------------------
+
+# El resto de tu código de estilos y lógica sigue aquí abajo...
+
+
 # 1. CONFIGURACIÓN Y ESTILO
 st.set_page_config(page_title="GO TAXI", page_icon="🚖", layout="centered")
 
