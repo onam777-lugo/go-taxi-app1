@@ -4,17 +4,18 @@ from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 import pytz
 
-# 1. CONFIGURACIÓN DE LA APP (Esto activa el icono y el modo instalable)
+# 1. CONFIGURACIÓN DE LA APP (Asegura el icono en el navegador)
 st.set_page_config(
     page_title="GO TAXI", 
-    page_icon="logo.jpg", # Asegúrate de que el nombre coincida con tu archivo en GitHub
+    page_icon="logo.jpg", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS VISUALES (Diseño Premium Píritu)
+# 2. DISEÑO DE INTERFAZ PREMIUM
 st.markdown("""
     <style>
+    /* Fondo General Naranja Vibrante */
     .stApp { background-color: #FF8C00; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -22,71 +23,77 @@ st.markdown("""
     
     .block-container { padding-top: 1rem !important; max-width: 450px !important; }
 
-    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 0px; }
-    .brand-subtitle { text-align: center; color: black !important; font-weight: bold; font-size: 12px; margin-bottom: 20px; }
+    /* Cabecera */
+    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; }
+    .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }
 
-    /* Tarjeta Color Crema (#FEE0C0) */
-    .driver-info {
-        background-color: #FEE0C0;
-        padding: 12px;
-        border-radius: 12px;
-        border-left: 10px solid var(--status-color);
+    /* Tarjetas de Choferes (Look Premium Crema) */
+    .driver-card {
+        background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
+        padding: 15px;
+        border-radius: 15px;
+        border-left: 12px solid var(--status-color);
         margin-bottom: 15px;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+        transition: transform 0.2s;
     }
     
-    /* Ajuste cuando la tarjeta tiene desplegable (Expander) */
-    .has-expander { border-radius: 12px 12px 0 0 !important; margin-bottom: -5px !important; }
+    .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
 
-    .name-bold { font-weight: bold; font-size: 18px; color: black !important; }
-    .code-badge { background-color: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 5px; font-size: 12px; color: #555 !important; margin-left: 5px; vertical-align: middle; }
-    .phone-small { font-weight: normal; font-size: 13px; color: #444 !important; display: block; margin-top: 2px; }
+    .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
+    .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; vertical-align: middle; }
+    .phone-text { font-weight: 600; font-size: 14px; color: #444 !important; display: block; margin-top: 4px; }
 
-    /* Estilo del Desplegable */
+    /* Desplegable Integrado */
     .stExpander {
         background-color: #FEE0C0 !important;
         border: none !important;
-        border-radius: 0 0 12px 12px !important;
-        margin-bottom: 15px;
+        border-radius: 0 0 15px 15px !important;
+        margin-bottom: 20px;
+        box-shadow: 4px 6px 10px rgba(0,0,0,0.1);
     }
     
-    .stButton>button { border-radius: 10px !important; height: 45px !important; font-weight: bold !important; }
-    .stMarkdown p, .stMarkdown b { color: black !important; }
-
-    /* Banner de Horario Nocturno */
-    .offline-banner { 
-        background-color: #dc3545; 
-        color: white !important; 
-        padding: 10px; 
-        border-radius: 10px; 
-        text-align: center; 
-        font-weight: bold; 
-        margin-bottom: 20px; 
-        border: 2px solid white; 
+    /* Botones Estilo App */
+    .stButton>button { 
+        border-radius: 12px !important; 
+        height: 50px !important; 
+        font-weight: 700 !important; 
+        text-transform: uppercase;
+        border: none !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    /* Banner Informativo de Instalación */
+    .install-box {
+        background-color: rgba(255,255,255,0.2);
+        border: 1px dashed white;
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        color: white;
+        margin-top: 30px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">🚖 GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+# Encabezado
+st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
 
-# 3. LÓGICA DE HORARIO VENEZUELA (9 PM a 6 AM)
+# Lógica de Horario Venezuela
 tz = pytz.timezone('America/Caracas')
 hora_actual = datetime.now(tz).hour
 es_horario_nocturno = hora_actual >= 21 or hora_actual < 6
 
 try:
-    # 4. CONEXIÓN A GOOGLE SHEETS
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
     df.columns = df.columns.str.strip().str.upper()
 
-    # Si es de noche, todos pasan a "No Laborando" automáticamente
     if es_horario_nocturno:
-        st.markdown('<div class="offline-banner">🌙 HORARIO NOCTURNO<br>El servicio se activará a las 6:00 AM</div>', unsafe_allow_html=True)
+        st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO<br>Abrimos de 6:00 AM a 9:00 PM</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
-    # 5. ORGANIZACIÓN POR SECCIONES
     secciones = [
         {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
         {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
@@ -96,43 +103,44 @@ try:
     for sec in secciones:
         grupo = df[df['ESTATUS'] == sec['key']]
         if not grupo.empty:
-            st.markdown(f"<b style='color: white !important; text-shadow: 1px 1px 2px black; margin-left: 5px;'>{sec['label']}</b>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color: white; font-weight: 800; margin-left: 5px; margin-bottom: 8px;'>{sec['label']}</p>", unsafe_allow_html=True)
             
             for _, fila in grupo.iterrows():
                 telf_raw = str(fila['TELEFONO']).split('.')[0]
                 telf_fmt = f"+58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}"
-                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Datos no registrados."
+                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Sin datos registrados."
                 codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
 
-                # BLOQUEO: Si no labora, no hay desplegable
-                bloquear_contacto = (sec['key'] == "No Laborando")
-                clase_css = "driver-info has-expander" if not bloquear_contacto else "driver-info"
+                bloquear = (sec['key'] == "No Laborando")
+                clase_tarjeta = "driver-card has-expander" if not bloquear else "driver-card"
 
-                # FICHA DEL CHOFER
+                # Diseño de Tarjeta
                 st.markdown(f"""
-                    <div class="{clase_css}" style="--status-color: {sec['color']};">
-                        <span class="name-bold">{fila['NOMBRE']}</span>
-                        <span class="code-badge">#{codigo}</span>
-                        <span class="phone-small">{telf_fmt}</span>
+                    <div class="{clase_tarjeta}" style="--status-color: {sec['color']};">
+                        <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
+                        <span class="phone-text">📱 {telf_fmt}</span>
                     </div>
                 """, unsafe_allow_html=True)
 
-                # SOLO MOSTRAR DATOS SI LABORANDO
-                if not bloquear_contacto:
-                    with st.expander(" "):
-                        st.markdown("**💳 DATOS DE PAGO:**")
+                if not bloquear:
+                    with st.expander("VER OPCIONES DE VIAJE"):
+                        st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                         st.code(pago, language=None) 
-                        
                         st.markdown("---")
                         c1, c2 = st.columns(2)
-                        with c1: 
-                            st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                        with c2: 
-                            st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                        with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                        with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
-    # 6. BOTÓN DE RECLAMOS AL FINAL
+    # Instrucciones de Instalación
+    st.markdown("""
+        <div class="install-box">
+            <p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p>
+            <p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p>
+        </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("---")
-    st.link_button("📩 ENVIAR RECLAMO", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
+    st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
-    st.error("Sincronizando choferes de Píritu...")
+    st.error("Sincronizando flota...")
