@@ -95,7 +95,7 @@ try:
                     st.markdown(f"**💳 PAGO MÓVIL:**\n\n{pago}")
                     c1, c2 = st.columns(2)
                     with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                    with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     # Botón manual de refrescar por si acaso
     if st.button("🔄 Actualizar Lista"):
