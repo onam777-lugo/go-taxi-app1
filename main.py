@@ -4,7 +4,7 @@ from streamlit_gsheets import GSheetsConnection
 from datetime import datetime
 import pytz
 
-# 1. CONFIGURACIÓN DE LA APP (Asegura el icono en el navegador)
+# 1. CONFIGURACIÓN DE LA APP
 st.set_page_config(
     page_title="GO TAXI", 
     page_icon="logo.jpg", 
@@ -12,135 +12,92 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM
-st.markdown("""
+# Conexión a Google Sheets
+url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+# 2. CARGA DE DATOS (Choferes y Precio)
+try:
+    # Leemos la lista de choferes
+    df = conn.read(spreadsheet=url, worksheet="Sheet1", ttl=0)
+    df.columns = df.columns.str.strip().str.upper()
+    
+    # Leemos la configuración del precio
+    df_config = conn.read(spreadsheet=url, worksheet="CONFIG", ttl=0)
+    precio_actual = df_config.loc[df_config['PARAMETRO'] == 'PRECIO_CARRERA', 'VALOR'].values[0]
+except Exception:
+    precio_actual = "Consultar"
+
+# 3. DISEÑO PREMIUM
+st.markdown(f"""
     <style>
-    /* Fondo General Naranja Vibrante */
-    .stApp { background-color: #FF8C00; }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    .block-container { padding-top: 1rem !important; max-width: 450px !important; }
-
-    /* Cabecera */
-    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; }
-    .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }
-
-    /* Tarjetas de Choferes (Look Premium Crema) */
-    .driver-card {
-        background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 15px;
-        border-radius: 15px;
-        border-left: 12px solid var(--status-color);
-        margin-bottom: 15px;
-        box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
-        transition: transform 0.2s;
-    }
-    
-    .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
-
-    .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
-    .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; vertical-align: middle; }
-    .phone-text { font-weight: 600; font-size: 14px; color: #444 !important; display: block; margin-top: 4px; }
-
-    /* Desplegable Integrado */
-    .stExpander {
-        background-color: #FEE0C0 !important;
-        border: none !important;
-        border-radius: 0 0 15px 15px !important;
-        margin-bottom: 20px;
-        box-shadow: 4px 6px 10px rgba(0,0,0,0.1);
-    }
-    
-    /* Botones Estilo App */
-    .stButton>button { 
-        border-radius: 12px !important; 
-        height: 50px !important; 
-        font-weight: 700 !important; 
-        text-transform: uppercase;
-        border: none !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    /* Banner Informativo de Instalación */
-    .install-box {
-        background-color: rgba(255,255,255,0.2);
-        border: 1px dashed white;
+    .stApp {{ background-color: #FF8C00; }}
+    .precio-banner {{
+        background-color: black;
+        color: #FF8C00 !important;
         padding: 15px;
         border-radius: 15px;
         text-align: center;
-        color: white;
-        margin-top: 30px;
-    }
+        margin-bottom: 20px;
+        border: 2px solid white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }}
+    .precio-monto {{ font-size: 28px; font-weight: 900; display: block; }}
+    .driver-card {{ background: linear-gradient(145deg, #FEE0C0, #f7d4b0); padding: 15px; border-radius: 15px; border-left: 12px solid var(--status-color); margin-bottom: 15px; }}
     </style>
     """, unsafe_allow_html=True)
 
-# Encabezado
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align:center; color:white; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">GO TAXI</h1>', unsafe_allow_html=True)
 
-# Lógica de Horario Venezuela
+# Banner de Tarifa
+st.markdown(f"""
+    <div class="precio-banner">
+        <span style="font-size:14px; font-weight:bold; color:white;">TARIFA MÍNIMA HOY</span>
+        <span class="precio-monto">Bs. {precio_actual}</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+# 4. LÓGICA DE HORARIO Y LISTADO (Lo que ya funcionaba)
 tz = pytz.timezone('America/Caracas')
 hora_actual = datetime.now(tz).hour
 es_horario_nocturno = hora_actual >= 21 or hora_actual < 6
 
-try:
-    conn = st.connection("gsheets", type=GSheetsConnection)
-    url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
-    df = conn.read(spreadsheet=url, ttl=0) 
-    df.columns = df.columns.str.strip().str.upper()
+if es_horario_nocturno:
+    st.error("🌙 HORARIO NOCTURNO - Servicio activo desde las 6:00 AM")
+    df['ESTATUS'] = 'No Laborando'
 
-    if es_horario_nocturno:
-        st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO<br>Abrimos de 6:00 AM a 9:00 PM</div>', unsafe_allow_html=True)
-        df['ESTATUS'] = 'No Laborando'
+secciones = [
+    {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
+    {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
+    {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
+]
 
-    secciones = [
-        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
-        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
-    ]
+for sec in secciones:
+    grupo = df[df['ESTATUS'] == sec['key']]
+    if not grupo.empty:
+        st.markdown(f"<b style='color: white;'>{sec['label']}</b>", unsafe_allow_html=True)
+        for _, fila in grupo.iterrows():
+            with st.container():
+                st.markdown(f'<div class="driver-card" style="--status-color: {sec["color"]};"><b>{fila["NOMBRE"]}</b><br><small>📱 {fila["TELEFONO"]}</small></div>', unsafe_allow_html=True)
+                if sec['key'] != "No Laborando":
+                    with st.expander("VER OPCIONES"):
+                        st.code(fila['DATOSPAGO'], language=None)
+                        st.link_button("Llamar", f"tel:{fila['TELEFONO']}", use_container_width=True)
 
-    for sec in secciones:
-        grupo = df[df['ESTATUS'] == sec['key']]
-        if not grupo.empty:
-            st.markdown(f"<p style='color: white; font-weight: 800; margin-left: 5px; margin-bottom: 8px;'>{sec['label']}</p>", unsafe_allow_html=True)
-            
-            for _, fila in grupo.iterrows():
-                telf_raw = str(fila['TELEFONO']).split('.')[0]
-                telf_fmt = f"+58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}"
-                pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Sin datos registrados."
-                codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
+# 5. PANEL DE ADMINISTRADOR (OCULTO)
+st.markdown("---")
+with st.expander("🔐 GESTIÓN DE TARIFA"):
+    admin_pass = st.text_input("Contraseña de acceso", type="password")
+    if admin_pass == "Oo27636":
+        nuevo_precio = st.number_input("Establecer nuevo precio (Bs.)", min_value=0, value=int(precio_actual) if str(precio_actual).isdigit() else 0)
+        if st.button("GUARDAR NUEVO PRECIO"):
+            try:
+                # Actualizamos la hoja CONFIG
+                df_upd = pd.DataFrame([["PRECIO_CARRERA", nuevo_precio]], columns=["PARAMETRO", "VALOR"])
+                conn.update(spreadsheet=url, worksheet="CONFIG", data=df_upd)
+                st.success("Precio actualizado correctamente.")
+                st.balloons()
+            except Exception as e:
+                st.error("Error al actualizar. Verifica los permisos del Excel.")
 
-                bloquear = (sec['key'] == "No Laborando")
-                clase_tarjeta = "driver-card has-expander" if not bloquear else "driver-card"
-
-                # Diseño de Tarjeta
-                st.markdown(f"""
-                    <div class="{clase_tarjeta}" style="--status-color: {sec['color']};">
-                        <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
-                        <span class="phone-text">📱 {telf_fmt}</span>
-                    </div>
-                """, unsafe_allow_html=True)
-
-                if not bloquear:
-                    with st.expander("VER OPCIONES DE VIAJE"):
-                        st.markdown("**💳 PAGO MÓVIL / DATOS:**")
-                        st.code(pago, language=None) 
-                        st.markdown("---")
-                        c1, c2 = st.columns(2)
-                        with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                        with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
-
-    # Instrucciones de Instalación
-    st.markdown("""
-        <div class="install-box">
-            <p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p>
-            <p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
-
-except Exception as e:
-    st.error("Sincronizando flota...")
+st.markdown('<p style="text-align:center; color:white; font-size:10px;">Instala esta app tocando los 3 puntos y "Agregar a inicio"</p>', unsafe_allow_html=True)
