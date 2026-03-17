@@ -92,7 +92,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Títulos Principales
-st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">PÍRITU</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE DATOS Y HORARIO
 try:
@@ -125,9 +125,9 @@ try:
         df['ESTATUS'] = 'No Laborando'
 
     secciones = [
-        {"label": "🟢 MotoTAXI DISPONIBLE", "key": "Disponible", "color": "#28a745"},
-        {"label": "🟡 MotoTAXI OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 MotoTAXI NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
+        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
+        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
+        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
     ]
 
     for sec in secciones:
