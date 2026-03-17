@@ -125,9 +125,9 @@ try:
         df['ESTATUS'] = 'No Laborando'
 
     secciones = [
-        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
-        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
+        {"label": "🟢 MotoTAXI DISPONIBLE", "key": "Disponible", "color": "#28a745"},
+        {"label": "🟡 MotoTAXI OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
+        {"label": "🔴 MotoTAXI NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
     ]
 
     for sec in secciones:
