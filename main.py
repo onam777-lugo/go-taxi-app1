@@ -5,171 +5,137 @@ from datetime import datetime
 import pytz
 
 # 1. CONFIGURACIÓN DE LA APP
-st.set_page_config(
-    page_title="¡Go! TAXI", 
-    page_icon="logo.jpeg", 
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="GO TAXI", page_icon="logo.jpg", layout="centered")
 
-# 2. DISEÑO DE INTERFAZ PREMIUM (Píritu Style - Actualizado)
+# Inicializar el estado de la ventana emergente
+if "chofer_sel" not in st.session_state:
+    st.session_state.chofer_sel = None
+
+# 2. DISEÑO DE INTERFAZ (CSS Píritu Premium)
 st.markdown("""
     <style>
-    /* ELIMINAR BARRA BLANCA Y MENÚS DE STREAMLIT */
-    header, [data-testid="stHeader"], .stAppHeader {
-        display: none !important;
-        visibility: hidden !important;
-    }
+    header, [data-testid="stHeader"] { display: none !important; }
+    .stApp { background-color: #FF8C00; }
     
-    /* Fondo General y espacio superior para el título */
-    .stApp {
-        background-color: #FF8C00;
-        margin-top: -30px !important; /* Ajustado para eliminar la barra pero dejar aire */
-    }
+    /* Títulos */
+    .brand-title { text-align: center; color: white; font-size: 42px; font-weight: 900; padding-top: 80px; margin-bottom: -10px; }
+    .brand-subtitle { text-align: center; color: black; font-weight: 800; font-size: 14px; margin-bottom: 25px; }
 
-    #MainMenu, footer { visibility: hidden; }
-    
-    .block-container { 
-        padding-top: 1rem !important; 
-        max-width: 450px !important; 
-    }
-
-    /* Cabecera - Bajamos el título */
-    .brand-title { 
-        text-align: center; 
-        color: white !important; 
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.4); 
-        margin-bottom: -10px; 
-        font-size: 42px; 
-        font-weight: 900; 
-        padding-top: 80px; /* AQUÍ BAJAMOS EL TÍTULO para que no se pegue */
-    }
-    .brand-subtitle { 
-        text-align: center; 
-        color: black !important; 
-        font-weight: 800; 
-        font-size: 14px; 
-        letter-spacing: 2px; 
-        margin-bottom: 25px; 
-    }
-
-    /* Banner de Tarifa (Más Pequeño y Transparente) */
-    .tarifa-container {
-        /* Usamos rgba para transparencia: el último número (0.8) es la opacidad */
-        background-color: rgba(0, 0, 0, 0.8); 
-        color: white; 
-        padding: 8px 12px; /* Reducimos padding para hacerlo más pequeño */
-        border-radius: 12px; /* Bordes un poco menos redondeados para que se vea más pequeño */
-        text-align: center; 
-        margin-bottom: 25px; 
+    /* Tarifa Pequeña y Transparente */
+    .tarifa-box {
+        background-color: rgba(0, 0, 0, 0.7); color: white; padding: 8px;
+        border-radius: 12px; text-align: center; width: 60%; margin: 0 auto 25px auto;
         border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Sombra más sutil */
-        width: 80%; /* Ocupa el 80% del ancho */
-        margin-left: auto; /* Centramos el banner */
-        margin-right: auto;
     }
 
-    /* Tarjetas de Choferes */
-    .driver-card {
-        background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 15px; border-radius: 15px; border-left: 12px solid var(--status-color);
-        margin-bottom: 15px; box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+    /* Estilo de las Tarjetas (Botones) */
+    div.stButton > button {
+        background-color: #FEE0C0 !important;
+        color: #1a1a1a !important;
+        border-radius: 15px !important;
+        border: none !important;
+        border-left: 12px solid var(--col) !important;
+        padding: 15px !important;
+        width: 100% !important;
+        text-align: left !important;
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.1) !important;
+        margin-bottom: 10px;
+    }
+
+    /* Ventana de Datos (Modal) */
+    .modal-card {
+        background-color: #FEE0C0;
+        padding: 20px;
+        border-radius: 20px;
+        border: 2px solid black;
+        color: black;
+        margin-bottom: 20px;
     }
     
-    .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
-    .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
-    .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
-    
-    .stExpander { background-color: #FEE0C0 !important; border: none !important; border-radius: 0 0 15px 15px !important; margin-bottom: 20px; }
-    
-    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
-    
-    .install-box {
-        background-color: rgba(255,255,255,0.2); border: 1px dashed white;
-        padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
+    .stLinkButton > a {
+        border-radius: 12px !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Títulos Principales
-st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
+def cerrar_ventana():
+    st.session_state.chofer_sel = None
 
-# 3. LÓGICA DE DATOS Y HORARIO
+# --- CONTENIDO ---
+st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+
 try:
     conn = st.connection("gsheets", type=GSheetsConnection)
+    url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7m (URL CORTA POR ESPACIO)"
+    # Nota: Usa tu URL completa de siempre aquí
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
-    df = conn.read(spreadsheet=url, ttl=0) 
+    df = conn.read(spreadsheet=url, ttl=0)
     
-    # --- APARTADO DE TARIFA (Columna J / Índice 9) ---
-    try:
-        # Extrae el precio directamente del nombre de la columna J
-        precio_vuelo = df.columns[9] if len(df.columns) > 9 else "Consultar"
-    except:
-        precio_vuelo = "---"
+    # Tarifa desde J1
+    precio = df.columns[9] if len(df.columns) > 9 else "---"
+    st.markdown(f'<div class="tarifa-box"><p style="margin:0; font-size:10px; color:#FF8C00;">TARIFA MÍNIMA</p><p style="margin:0; font-size:22px; font-weight:900;">Bs. {precio}</p></div>', unsafe_allow_html=True)
 
-    # Mostramos la tarifa con el nuevo diseño
-    st.markdown(f"""
-        <div class="tarifa-container">
-            <p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p>
-            <p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # --- PROCESO DE LISTADO ---
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     es_noche = datetime.now(tz).hour >= 21 or datetime.now(tz).hour < 6
 
+    # LÓGICA DE VENTANA ABIERTA
+    if st.session_state.chofer_sel:
+        c = st.session_state.chofer_sel
+        st.markdown(f"""
+            <div class="modal-card">
+                <h2 style="margin:0;">{c['NOMBRE']}</h2>
+                <code style="background:black; color:#FF8C00; padding:2px 5px; border-radius:5px;">CÓDIGO: #{c['CODIGO']}</code>
+                <hr style="border:1px solid black;">
+                <p style="font-weight:bold; margin-bottom:5px;">DATOS DE PAGO:</p>
+                <div style="background:rgba(0,0,0,0.05); padding:10px; border-radius:10px;">{c['PAGO']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        col1.link_button("📞 LLAMAR", f"tel:{c['TELF']}", use_container_width=True)
+        col2.link_button("✅ WHATSAPP", f"https://wa.me/58{c['TELF']}", use_container_width=True)
+        if col3.button("❌ CERRAR", use_container_width=True):
+            cerrar_ventana()
+            st.rerun()
+        st.markdown("---")
+
+    # LISTADO DE FLOTA
     if es_noche:
-        st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (9PM - 6AM)</div>', unsafe_allow_html=True)
+        st.error("🌙 SERVICIO CERRADO (9PM - 6AM)")
         df['ESTATUS'] = 'No Laborando'
 
     secciones = [
         {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
         {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
+        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#777777"}
     ]
 
     for sec in secciones:
-        if 'ESTATUS' in df.columns:
-            grupo = df[df['ESTATUS'] == sec['key']]
-            if not grupo.empty:
-                st.markdown(f"<p style='color: white; font-weight: 800; margin-left: 5px; margin-bottom: 8px;'>{sec['label']}</p>", unsafe_allow_html=True)
+        grupo = df[df['ESTATUS'] == sec['key']]
+        if not grupo.empty:
+            st.markdown(f"<p style='color:white; font-weight:bold; margin-top:10px;'>{sec['label']}</p>", unsafe_allow_html=True)
+            for _, fila in grupo.iterrows():
+                nombre = fila['NOMBRE']
+                telf = str(fila['TELEFONO']).split('.')[0]
+                cod = str(fila['CODIGO']).split('.')[0]
                 
-                for _, fila in grupo.iterrows():
-                    telf_raw = str(fila['TELEFONO']).split('.')[0]
-                    telf_fmt = f"+58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}"
-                    pago = str(fila['DATOSPAGO']) if pd.notna(fila['DATOSPAGO']) else "Consultar al chofer."
-                    codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
-
-                    bloquear = (sec['key'] == "No Laborando")
-                    clase_tarjeta = "driver-card has-expander" if not bloquear else "driver-card"
-
-                    st.markdown(f"""
-                        <div class="{clase_tarjeta}" style="--status-color: {sec['color']};">
-                            <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
-                            <span style="color:#444; font-weight:600;">📱 {telf_fmt}</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-
-                    if not bloquear:
-                        with st.expander("CONTACTAR"):
-                            st.markdown("**💳 PAGO MÓVIL / DATOS:**")
-                            st.code(pago, language=None) 
-                            st.markdown("---")
-                            c1, c2 = st.columns(2)
-                            with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
-
-    st.markdown("""
-        <div class="install-box">
-            <p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p>
-            <p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p>
-        </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
+                # Crear botón con color de borde según estatus
+                # Usamos una variable CSS para el color del borde izquierdo
+                st.markdown(f"<div style='--col: {sec['color']};'>", unsafe_allow_html=True)
+                if st.button(f"👤 {nombre}\n📱 +58 {telf}  |  #{cod}", key=f"btn_{cod}"):
+                    if sec['key'] != "No Laborando":
+                        st.session_state.chofer_sel = {
+                            "NOMBRE": nombre, "TELF": telf, 
+                            "CODIGO": cod, "PAGO": fila['DATOSPAGO']
+                        }
+                        st.rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
 
 except Exception as e:
-    st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
+    st.info("Sincronizando flota...")
