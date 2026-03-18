@@ -23,7 +23,7 @@ st.markdown("""
     
     /* Fondo General y espacio superior para el título */
     .stApp {
-        background-color: #3949AB;
+        background-color: #FF8F00;
         margin-top: -30px !important; 
     }
 
