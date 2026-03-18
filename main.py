@@ -23,7 +23,7 @@ st.markdown("""
     
     /* Fondo General y espacio superior para el título */
     .stApp {
-        background-color: #FF8C00;
+        background-color: #FFA200;
         margin-top: -30px !important; 
     }
 
@@ -161,11 +161,11 @@ try:
                             st.code(pago, language=None) 
                             
                             # MENSAJE DE WHATSAPP CON EMOJI (STICKER VISUAL)
-                            mensaje_wa = f"Hola, necesito un servicio de GO TAXI con el chofer #{codigo} 🚕💨"
+                            mensaje_wa = f"Hola, necesito un servicio #{codigo} 🚕💨"
                             
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("🟢 WHATSAPP", f"https://wa.me/58{telf_raw}?text={mensaje_wa}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}?text={mensaje_wa}", use_container_width=True)
 
     st.markdown("""
         <div class="install-box">
