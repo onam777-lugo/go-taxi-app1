@@ -55,16 +55,16 @@ st.markdown("""
 
     /* Banner de Tarifa (Más Pequeño y Transparente) */
     .tarifa-container {
-        /* Usamos rgba para transparencia: el último número (0.8) es la opacidad */
-        background-color: rgba(0, 0, 0, 0.8); 
+        /* Usamos rgba para transparencia: el último número (0.5) es la opacidad */
+        background-color: rgba(0, 0, 0, 0.5); 
         color: white; 
         padding: 8px 12px; /* Reducimos padding para hacerlo más pequeño */
         border-radius: 12px; /* Bordes un poco menos redondeados para que se vea más pequeño */
         text-align: center; 
         margin-bottom: 25px; 
         border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2); /* Sombra más sutil */
-        width: 80%; /* Ocupa el 80% del ancho */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* Sombra más sutil */
+        width: 50%; /* Ocupa el 50% del ancho */
         margin-left: auto; /* Centramos el banner */
         margin-right: auto;
     }
@@ -92,7 +92,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Títulos Principales
-st.markdown('<h1 class="brand-title">GO TAXI</h1><p class="brand-subtitle">PÍRITU - PORTUGUESA</p>', unsafe_allow_html=True)
+st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE DATOS Y HORARIO
 try:
@@ -156,10 +156,10 @@ try:
                         with st.expander("VER OPCIONES DE VIAJE"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                             st.code(pago, language=None) 
-                            st.markdown("---")
+                            st.markdown("--")
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("✅ WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     st.markdown("""
         <div class="install-box">
