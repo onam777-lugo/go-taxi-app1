@@ -7,7 +7,7 @@ import pytz
 # 1. CONFIGURACIÓN DE LA APP
 st.set_page_config(
     page_title="GO TAXI", 
-    page_icon="logo.jpg", 
+    page_icon="logo.jpeg", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
