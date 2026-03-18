@@ -156,7 +156,7 @@ try:
                     """, unsafe_allow_html=True)
 
                     if not bloquear:
-                        with st.expander("VER OPCIONES DE VIAJE"):
+                        with st.expander("VER DATOS"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                             st.code(pago, language=None) 
                             
