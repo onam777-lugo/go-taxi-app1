@@ -7,7 +7,7 @@ import pytz
 # 1. CONFIGURACIÓN DE LA APP
 st.set_page_config(
     page_title="GO TAXI", 
-    page_icon="logo.jpeg", 
+    page_icon="logo.jpg", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -21,10 +21,10 @@ st.markdown("""
         visibility: hidden !important;
     }
     
-    /* Fondo General y espacio superior para el título */
+    /* Fondo General */
     .stApp {
-        background-color: #FF8F00;
-        margin-top: -30px !important; 
+        background-color: #FF8C00;
+        margin-top: -30px !important;
     }
 
     #MainMenu, footer { visibility: hidden; }
@@ -34,7 +34,7 @@ st.markdown("""
         max-width: 450px !important; 
     }
 
-    /* Cabecera - Bajamos el título */
+    /* Cabecera */
     .brand-title { 
         text-align: center; 
         color: white !important; 
@@ -42,7 +42,7 @@ st.markdown("""
         margin-bottom: -10px; 
         font-size: 42px; 
         font-weight: 900; 
-        padding-top: 80px; 
+        padding-top: 80px;
     }
     .brand-subtitle { 
         text-align: center; 
@@ -53,7 +53,7 @@ st.markdown("""
         margin-bottom: 25px; 
     }
 
-    /* Banner de Tarifa (Más Pequeño y Transparente) */
+    /* Banner de Tarifa */
     .tarifa-container {
         background-color: rgba(0, 0, 0, 0.5); 
         color: white; 
@@ -81,15 +81,34 @@ st.markdown("""
     
     .stExpander { background-color: #FEE0C0 !important; border: none !important; border-radius: 0 0 15px 15px !important; margin-bottom: 20px; }
     
-    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
-    
-    /* MODIFICACIÓN PARA FORZAR FILA EN MÓVIL */
-    [data-testid="column"] {
-        width: 50% !important;
-        flex: 1 1 50% !important;
-        min-width: 50% !important;
+    /* --- EDICIÓN DE BOTONES --- */
+    .stButton>button, .stBaseButton-secondary { 
+        border-radius: 12px !important; 
+        height: 55px !important; /* Más altos para fácil clic */
+        font-weight: 800 !important; 
+        text-transform: uppercase;
+        font-size: 16px !important; /* Letra más grande */
+        border: none !important;
+        transition: 0.3s !important;
     }
 
+    /* Botón LLAMAR (Columna 1) */
+    [data-testid="column"]:nth-of-type(1) .stButton button {
+        background-color: #1b5e20 !important; /* Verde Oscuro */
+        color: white !important;
+    }
+
+    /* Botón WHATSAPP (Columna 2) */
+    [data-testid="column"]:nth-of-type(2) .stButton button {
+        background-color: #25D366 !important; /* Verde WhatsApp */
+        color: white !important;
+    }
+
+    .stButton button:hover {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+    
     .install-box {
         background-color: rgba(255,255,255,0.2); border: 1px dashed white;
         padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
@@ -106,7 +125,6 @@ try:
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
     
-    # --- APARTADO DE TARIFA (Columna J / Índice 9) ---
     try:
         precio_vuelo = df.columns[9] if len(df.columns) > 9 else "Consultar"
     except:
@@ -156,16 +174,12 @@ try:
                     """, unsafe_allow_html=True)
 
                     if not bloquear:
-                        with st.expander("VER DATOS"):
+                        with st.expander("VER OPCIONES DE VIAJE"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                             st.code(pago, language=None) 
-                            
-                            # MENSAJE DE WHATSAPP CON EMOJI (STICKER VISUAL)
-                            mensaje_wa = f"Hola, necesito un servicio #{codigo} 🚕💨"
-                            
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}?text={mensaje_wa}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
     st.markdown("""
         <div class="install-box">
@@ -179,4 +193,4 @@ try:
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
-                    
+        
