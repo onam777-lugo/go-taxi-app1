@@ -24,7 +24,7 @@ st.markdown("""
     /* Fondo General y espacio superior para el título */
     .stApp {
         background-color: #FF8C00;
-        margin-top: -30px !important; /* Ajustado para eliminar la barra pero dejar aire */
+        margin-top: -30px !important; 
     }
 
     #MainMenu, footer { visibility: hidden; }
@@ -42,7 +42,7 @@ st.markdown("""
         margin-bottom: -10px; 
         font-size: 42px; 
         font-weight: 900; 
-        padding-top: 80px; /* AQUÍ BAJAMOS EL TÍTULO para que no se pegue */
+        padding-top: 80px; 
     }
     .brand-subtitle { 
         text-align: center; 
@@ -55,17 +55,16 @@ st.markdown("""
 
     /* Banner de Tarifa (Más Pequeño y Transparente) */
     .tarifa-container {
-        /* Usamos rgba para transparencia: el último número (0.5) es la opacidad */
         background-color: rgba(0, 0, 0, 0.5); 
         color: white; 
-        padding: 8px 12px; /* Reducimos padding para hacerlo más pequeño */
-        border-radius: 12px; /* Bordes un poco menos redondeados para que se vea más pequeño */
+        padding: 8px 12px; 
+        border-radius: 12px; 
         text-align: center; 
         margin-bottom: 25px; 
         border: 1px solid rgba(255,255,255,0.1);
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4); /* Sombra más sutil */
-        width: 50%; /* Ocupa el 50% del ancho */
-        margin-left: auto; /* Centramos el banner */
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4); 
+        width: 50%; 
+        margin-left: auto; 
         margin-right: auto;
     }
 
@@ -84,6 +83,13 @@ st.markdown("""
     
     .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
     
+    /* MODIFICACIÓN PARA FORZAR FILA EN MÓVIL */
+    [data-testid="column"] {
+        width: 50% !important;
+        flex: 1 1 50% !important;
+        min-width: 50% !important;
+    }
+
     .install-box {
         background-color: rgba(255,255,255,0.2); border: 1px dashed white;
         padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
@@ -102,12 +108,10 @@ try:
     
     # --- APARTADO DE TARIFA (Columna J / Índice 9) ---
     try:
-        # Extrae el precio directamente del nombre de la columna J
         precio_vuelo = df.columns[9] if len(df.columns) > 9 else "Consultar"
     except:
         precio_vuelo = "---"
 
-    # Mostramos la tarifa con el nuevo diseño
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p>
@@ -115,7 +119,6 @@ try:
         </div>
     """, unsafe_allow_html=True)
 
-    # --- PROCESO DE LISTADO ---
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     es_noche = datetime.now(tz).hour >= 21 or datetime.now(tz).hour < 6
@@ -156,9 +159,13 @@ try:
                         with st.expander("VER OPCIONES DE VIAJE"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                             st.code(pago, language=None) 
+                            
+                            # MENSAJE DE WHATSAPP CON EMOJI (STICKER VISUAL)
+                            mensaje_wa = f"Hola, necesito un servicio de GO TAXI con el chofer #{codigo} 🚕💨"
+                            
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                            with c2: st.link_button("🟢 WHATSAPP", f"https://wa.me/58{telf_raw}?text={mensaje_wa}", use_container_width=True)
 
     st.markdown("""
         <div class="install-box">
@@ -172,4 +179,4 @@ try:
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
-                
+                    
