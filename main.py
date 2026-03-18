@@ -94,14 +94,14 @@ st.markdown("""
 
     /* Botón LLAMAR (Columna 1) */
     [data-testid="column"]:nth-of-type(1) .stButton button {
-        background-color: #E0E0D8 !important; /* Verde Oscuro */
+        background-color: # !important; /* Verde Oscuro */
         color: white !important;
     }
 
     /* Botón WHATSAPP (Columna 2) */
     [data-testid="column"]:nth-of-type(2) .stButton button {
         background-color: #407038 !important; /* Verde WhatsApp */
-        color: white !important;
+        color: Black !important;
     }
 
     .stButton button:hover {
