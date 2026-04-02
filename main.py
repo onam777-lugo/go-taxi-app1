@@ -42,7 +42,7 @@ st.markdown(f"""
         overflow: hidden;
         position: relative;
         z-index: 2;
-        border: 1px solid rgba(255,255,255,0.2); /* Borde fino para resaltar transparencia */
+        border: 1px solid rgba(255,255,255,0.0); /* Borde fino para resaltar transparencia */
     }}
     .status-bar {{ width: 14px; min-height: 100%; }}
     .card-info {{ padding: 15px; flex-grow: 1; }}
