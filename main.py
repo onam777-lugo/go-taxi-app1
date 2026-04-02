@@ -86,7 +86,7 @@ try:
         df['ESTATUS'] = 'No Laborando'
 
     config_estatus = {
-        "Disponible": {"bg": "#689071", "bar": "#28a745", "shadow": "#C8E6C9", "text": "#1B5E20"},
+        "Disponible": {"bg": "#9fd700", "bar": "#28a745", "shadow": "#C8E6C9", "text": "#1B5E20"},
         "Ocupado": {"bg": "#FFFDE7", "bar": "#f1c40f", "shadow": "#FFF9C4", "text": "#F57F17"},
         "No Laborando": {"bg": "#FFEBEE", "bar": "#dc3545", "shadow": "#FFCDD2", "text": "#B71C1C"}
     }
