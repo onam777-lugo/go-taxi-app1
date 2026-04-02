@@ -12,55 +12,61 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS BASE (ESQUINAS REDONDEADAS Y DISEÑO)
-st.markdown("""
+# --- AJUSTE DE TRANSPARENCIA (Cambia este valor del 0.0 al 1.0) ---
+opacidad = 0.85 
+
+# 2. ESTILOS BASE (CON SOMBRAS Y TRANSPARENCIAS)
+st.markdown(f"""
     <style>
-    header, [data-testid="stHeader"], .stAppHeader { display: none !important; }
-    .stApp { background-color: #FF8C00; margin-top: -30px !important; }
-    .block-container { padding-top: 1rem !important; max-width: 450px !important; padding-bottom: 5rem !important; }
-    .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; padding-top: 80px; }
-    .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }
+    header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
+    .stApp {{ background-color: #FF8C00; margin-top: -30px !important; }}
+    .block-container {{ padding-top: 1rem !important; max-width: 450px !important; padding-bottom: 5rem !important; }}
+    .brand-title {{ text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; padding-top: 80px; }}
+    .brand-subtitle {{ text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }}
     
-    .tarifa-container {
+    .tarifa-container {{
         background-color: rgba(0, 0, 0, 0.5); color: white; 
         padding: 8px 12px; border-radius: 12px; text-align: center; 
         margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1);
         width: 60%; margin-left: auto; margin-right: auto;
-    }
+    }}
 
-    /* Contenedor de Tarjeta - REDONDEADO TOTAL */
-    .driver-card {
+    /* Contenedor de Tarjeta con Sombra Profunda */
+    .driver-card {{
         padding: 0px !important; 
         border-radius: 15px !important; 
         margin-bottom: 0px !important; 
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
+        /* Sombra más marcada: horizontal vertical desenfoque color */
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.25); 
         display: flex;
         overflow: hidden;
         position: relative;
         z-index: 2;
-    }
-    .status-bar { width: 14px; min-height: 100%; }
-    .card-info { padding: 15px; flex-grow: 1; }
-    .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
-    .code-tag { background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+        border: 1px solid rgba(255,255,255,0.2); /* Borde fino para resaltar transparencia */
+    }}
+    .status-bar {{ width: 14px; min-height: 100%; }}
+    .card-info {{ padding: 15px; flex-grow: 1; }}
+    .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }}
+    .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }}
 
-    /* Expander - REDONDEADO TOTAL Y UNIÓN */
-    .stExpander { 
+    /* Expander con Sombra */
+    .stExpander {{ 
         border: none !important; 
         border-radius: 15px !important; 
         margin-top: -10px !important; 
         margin-bottom: 20px !important;
         overflow: hidden !important;
-    }
-    .stExpander details { border: none !important; }
-    .stExpander summary { padding-top: 15px !important; }
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+    }}
+    .stExpander details {{ border: none !important; }}
+    .stExpander summary {{ padding-top: 15px !important; }}
     
-    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
+    .stButton>button {{ border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }}
     
-    .install-box {
+    .install-box {{
         background-color: rgba(255,255,255,0.2); border: 1px dashed white;
         padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
-    }
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -78,17 +84,18 @@ try:
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     
-    # REINTEGRADO: Horario de 10 PM a 6 AM
-    es_noche = datetime.now(tz).hour >= 23 or datetime.now(tz).hour < 6
+    es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
+    # --- CONFIGURACIÓN DE COLORES CON TRANSPARENCIA VARIABLE ---
+    # Usamos RGBA para poder inyectar la variable 'opacidad'
     config_estatus = {
-        "Disponible": {"bg": "#CADEC8", "bar": "#28a745", "shadow": "#C8E6C9", "text": "#1B5E20"},
-        "Ocupado": {"bg": "#FFFDE7", "bar": "#f1c40f", "shadow": "#FFF9C4", "text": "#F57F17"},
-        "No Laborando": {"bg": "#FFEBEE", "bar": "#dc3545", "shadow": "#FFCDD2", "text": "#B71C1C"}
+        "Disponible": {"bg": f"rgba(232, 245, 233, {opacidad})", "bar": "#28a745", "shadow": f"rgba(200, 230, 201, {opacidad})", "text": "#1B5E20"},
+        "Ocupado": {"bg": f"rgba(255, 253, 231, {opacidad})", "bar": "#f1c40f", "shadow": f"rgba(255, 249, 196, {opacidad})", "text": "#F57F17"},
+        "No Laborando": {"bg": f"rgba(255, 235, 238, {opacidad})", "bar": "#dc3545", "shadow": f"rgba(255, 205, 210, {opacidad})", "text": "#B71C1C"}
     }
 
     for key, colores in config_estatus.items():
@@ -105,9 +112,10 @@ try:
                         <style>
                         div[data-testid="stExpander"]:has(summary:contains("VER DATOS")) {{
                             background-color: {colores['shadow']} !important;
+                            backdrop-filter: blur(5px); /* Efecto de desenfoque detrás */
                         }}
                         </style>
-                        <div class="driver-card" style="background-color: {colores['bg']};">
+                        <div class="driver-card" style="background-color: {colores['bg']}; backdrop-filter: blur(5px);">
                             <div class="status-bar" style="background-color: {colores['bar']};"></div>
                             <div class="card-info">
                                 <span class="name-text" style="color: {colores['text']} !important;">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
@@ -126,11 +134,10 @@ try:
                     else:
                         st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
-    # REINTEGRADO: Footer de instalación y reclamos
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white; font-weight:bold;'>Sincronizando flota... Por favor espera.</p>", unsafe_allow_html=True)
-                            
+                
