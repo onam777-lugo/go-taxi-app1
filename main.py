@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM (Actualizado con Barras Laterales)
+# 2. DISEÑO DE INTERFAZ PREMIUM
 st.markdown("""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {
@@ -63,29 +63,28 @@ st.markdown("""
         margin-right: auto;
     }
 
-    /* Tarjetas de Choferes con Barra Lateral Dinámica */
+    /* ESTILO DE TARJETAS CON BARRA DINÁMICA */
     .driver-card {
         background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 0px; /* Quitamos padding para que la barra llegue al borde */
+        padding: 0px !important; 
         border-radius: 15px; 
         margin-bottom: 15px; 
         box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
-        position: relative;
-        overflow: hidden;
         display: flex;
+        overflow: hidden;
+        border: none !important;
     }
     
-    .card-status-bar {
-        width: 12px;
+    .status-bar {
+        width: 14px; /* Grosor de la barra lateral */
         min-height: 100%;
     }
 
-    .card-content {
+    .card-info {
         padding: 15px;
         flex-grow: 1;
     }
     
-    .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
     
@@ -93,19 +92,12 @@ st.markdown("""
         background-color: #FEE0C0 !important; 
         border: none !important; 
         border-radius: 0 0 15px 15px !important; 
+        margin-top: -20px;
         margin-bottom: 20px; 
     }
     
-    .stExpander p {
-        color: #FF8C00 !important; 
-        font-weight: 800 !important;
-        text-transform: uppercase;
-    }
-
-    .stExpander svg {
-        fill: #FF8C00 !important;
-    }
-    
+    .stExpander p { color: #FF8C00 !important; font-weight: 800 !important; text-transform: uppercase; }
+    .stExpander svg { fill: #FF8C00 !important; }
     .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
     
     .install-box {
@@ -125,12 +117,7 @@ try:
     
     precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
 
-    st.markdown(f"""
-        <div class="tarifa-container">
-            <p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p>
-            <p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f'<div class="tarifa-container"><p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p><p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p></div>', unsafe_allow_html=True)
 
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
@@ -140,10 +127,11 @@ try:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (9PM - 6AM)</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
+    # --- AQUÍ PUEDES CAMBIAR LOS COLORES FÁCILMENTE ---
     secciones = [
-        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},
-        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},
-        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"}
+        {"label": "🟢 DISPONIBLES", "key": "Disponible", "color": "#28a745"},   # Cambia el código verde aquí
+        {"label": "🟡 OCUPADOS", "key": "Ocupado", "color": "#f1c40f"},       # Cambia el código amarillo aquí
+        {"label": "🔴 NO LABORANDO", "key": "No Laborando", "color": "#dc3545"} # Cambia el código rojo aquí
     ]
 
     for sec in secciones:
@@ -159,13 +147,12 @@ try:
                     codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
 
                     bloquear = (sec['key'] == "No Laborando")
-                    clase_tarjeta = "driver-card has-expander" if not bloquear else "driver-card"
 
-                    # TARJETA CON BARRA DE COLOR DINÁMICA
+                    # ESTRUCTURA DE TARJETA CON BARRA DE COLOR SEGÚN EL ESTATUS
                     st.markdown(f"""
-                        <div class="{clase_tarjeta}">
-                            <div class="card-status-bar" style="background-color: {sec['color']};"></div>
-                            <div class="card-content">
+                        <div class="driver-card">
+                            <div class="status-bar" style="background-color: {sec['color']};"></div>
+                            <div class="card-info">
                                 <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
                                 <span style="color:#444; font-weight:600;">📱 {telf_fmt}</span>
                             </div>
@@ -180,16 +167,10 @@ try:
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
                             with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
-    st.markdown("""
-        <div class="install-box">
-            <p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p>
-            <p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p>
-        </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
     st.markdown("---")
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
-        
+    
