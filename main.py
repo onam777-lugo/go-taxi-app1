@@ -79,7 +79,7 @@ try:
     tz = pytz.timezone('America/Caracas')
     
     # REINTEGRADO: Horario de 10 PM a 6 AM
-    es_noche = datetime.now(tz).hour >= 00 or datetime.now(tz).hour < 6
+    es_noche = datetime.now(tz).hour >= 23 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
