@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS BASE (MODIFICADOS PARA LAS ESQUINAS MARCADAS)
+# 2. ESTILOS BASE (ESQUINAS REDONDEADAS Y DISEÑO)
 st.markdown("""
     <style>
     header, [data-testid="stHeader"], .stAppHeader { display: none !important; }
@@ -21,33 +21,46 @@ st.markdown("""
     .brand-title { text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; padding-top: 80px; }
     .brand-subtitle { text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }
     
-    /* Contenedor de Tarjeta */
+    .tarifa-container {
+        background-color: rgba(0, 0, 0, 0.5); color: white; 
+        padding: 8px 12px; border-radius: 12px; text-align: center; 
+        margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1);
+        width: 60%; margin-left: auto; margin-right: auto;
+    }
+
+    /* Contenedor de Tarjeta - REDONDEADO TOTAL */
     .driver-card {
         padding: 0px !important; 
-        border-radius: 15px !important; /* REDONDEADO TOTAL PARA LA TARJETA SUPERIOR */
+        border-radius: 15px !important; 
         margin-bottom: 0px !important; 
         box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
         display: flex;
         overflow: hidden;
         position: relative;
-        z-index: 2; /* Para que quede sobre el expander si es necesario */
+        z-index: 2;
     }
     .status-bar { width: 14px; min-height: 100%; }
     .card-info { padding: 15px; flex-grow: 1; }
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
 
-    /* Expander MODIFICADO: Esquinas superiores redondeadas */
+    /* Expander - REDONDEADO TOTAL Y UNIÓN */
     .stExpander { 
         border: none !important; 
-        border-radius: 15px !important; /* REDONDEADO TOTAL PARA EL BOTÓN INFERIOR */
-        margin-top: -10px !important; /* Ligero solapamiento para unión visual */
+        border-radius: 15px !important; 
+        margin-top: -10px !important; 
         margin-bottom: 20px !important;
         overflow: hidden !important;
     }
     .stExpander details { border: none !important; }
-    .stExpander summary { padding-top: 15px !important; } /* Más espacio arriba para compensar el solapamiento */
-    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; }
+    .stExpander summary { padding-top: 15px !important; }
+    
+    .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
+    
+    .install-box {
+        background-color: rgba(255,255,255,0.2); border: 1px dashed white;
+        padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -58,9 +71,14 @@ try:
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
-    df.columns = df.columns.str.strip().str.upper()
     
+    precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
+    st.markdown(f'<div class="tarifa-container"><p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p><p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p></div>', unsafe_allow_html=True)
+
+    df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
+    
+    # REINTEGRADO: Horario de 10 PM a 6 AM
     es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
@@ -108,6 +126,11 @@ try:
                     else:
                         st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
+    # REINTEGRADO: Footer de instalación y reclamos
+    st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
+
 except Exception as e:
-    st.error(f"Error de conexión: {e}")
-    
+    st.markdown("<p style='text-align:center; color:white; font-weight:bold;'>Sincronizando flota... Por favor espera.</p>", unsafe_allow_html=True)
+                            
