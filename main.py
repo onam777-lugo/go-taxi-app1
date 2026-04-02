@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # --- AJUSTE DE TRANSPARENCIA (Cambia este valor del 0.0 al 1.0) ---
-opacidad = 0.5 
+opacidad = 0.7 
 
 # 2. ESTILOS BASE (CON SOMBRAS Y TRANSPARENCIAS)
 st.markdown(f"""
