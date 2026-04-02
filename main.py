@@ -13,7 +13,8 @@ st.set_page_config(
 )
 
 # --- AJUSTE DE TRANSPARENCIA (Cambia este valor del 0.0 al 1.0) ---
-opacidad = 0.7 
+# 0.85 significa que se ve el color pero deja pasar un poco el fondo naranja
+opacidad = 0.85 
 
 # 2. ESTILOS BASE (CON SOMBRAS Y TRANSPARENCIAS)
 st.markdown(f"""
@@ -36,13 +37,12 @@ st.markdown(f"""
         padding: 0px !important; 
         border-radius: 15px !important; 
         margin-bottom: 0px !important; 
-        /* Sombra más marcada: horizontal vertical desenfoque color */
         box-shadow: 0px 8px 16px rgba(0,0,0,0.25); 
         display: flex;
         overflow: hidden;
         position: relative;
         z-index: 2;
-        border: 1px solid rgba(255,255,255,0.0); /* Borde fino para resaltar transparencia */
+        border: 1px solid rgba(255,255,255,0.2);
     }}
     .status-bar {{ width: 14px; min-height: 100%; }}
     .card-info {{ padding: 15px; flex-grow: 1; }}
@@ -84,25 +84,25 @@ try:
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     
-    es_noche = datetime.now(tz).hour >= 23 or datetime.now(tz).hour < 6
+    es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
-    # --- CONFIGURACIÓN DE COLORES CON TRANSPARENCIA VARIABLE ---
-    # Usamos RGBA para poder inyectar la variable 'opacidad'
+    # CONFIGURACIÓN DE COLORES CON TRANSPARENCIA
     config_estatus = {
-        "Disponible": {"bg": f"rgba(232, 245, 233, {opacidad})", "bar": "#28a745", "shadow": f"rgba(200, 230, 201, {opacidad})", "text": "#1B5E20"},
-        "Ocupado": {"bg": f"rgba(255, 253, 231, {opacidad})", "bar": "#f1c40f", "shadow": f"rgba(255, 249, 196, {opacidad})", "text": "#F57F17"},
-        "No Laborando": {"bg": f"rgba(255, 235, 238, {opacidad})", "bar": "#dc3545", "shadow": f"rgba(255, 205, 210, {opacidad})", "text": "#B71C1C"}
+        "Disponible": {"bg": f"rgba(232, 245, 233, {opacidad})", "bar": "#28a745", "shadow": f"rgba(200, 230, 201, {opacidad})", "text": "#1B5E20", "emoji": "🟢"},
+        "Ocupado": {"bg": f"rgba(255, 253, 231, {opacidad})", "bar": "#f1c40f", "shadow": f"rgba(255, 249, 196, {opacidad})", "text": "#F57F17", "emoji": "🟡"},
+        "No Laborando": {"bg": f"rgba(255, 235, 238, {opacidad})", "bar": "#dc3545", "shadow": f"rgba(255, 205, 210, {opacidad})", "text": "#B71C1C", "emoji": "🔴"}
     }
 
     for key, colores in config_estatus.items():
         if 'ESTATUS' in df.columns:
             grupo = df[df['ESTATUS'] == key]
             if not grupo.empty:
-                st.markdown(f"<p style='color: white; font-weight: 800; margin-bottom: 8px;'>{key.upper()}</p>", unsafe_allow_html=True)
+                # TÍTULO DE SECCIÓN CON EMOJI (Línea de escaneo)
+                st.markdown(f"<p style='color: white; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px;'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
                 
                 for _, fila in grupo.iterrows():
                     telf_raw = str(fila['TELEFONO']).split('.')[0].replace(" ", "").replace("-", "")
@@ -112,7 +112,7 @@ try:
                         <style>
                         div[data-testid="stExpander"]:has(summary:contains("VER DATOS")) {{
                             background-color: {colores['shadow']} !important;
-                            backdrop-filter: blur(5px); /* Efecto de desenfoque detrás */
+                            backdrop-filter: blur(5px);
                         }}
                         </style>
                         <div class="driver-card" style="background-color: {colores['bg']}; backdrop-filter: blur(5px);">
@@ -134,10 +134,11 @@ try:
                     else:
                         st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
+    # Footer y Reclamos
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white; font-weight:bold;'>Sincronizando flota... Por favor espera.</p>", unsafe_allow_html=True)
-                
+                        
