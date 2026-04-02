@@ -136,7 +136,7 @@ try:
 
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
-    es_noche = datetime.now(tz).hour >= 21 or datetime.now(tz).hour < 6
+    es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (9PM - 6AM)</div>', unsafe_allow_html=True)
