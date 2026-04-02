@@ -175,3 +175,4 @@ try:
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
+                    
