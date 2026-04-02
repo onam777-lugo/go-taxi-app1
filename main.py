@@ -14,7 +14,7 @@ st.set_page_config(
 
 # --- AJUSTE DE TRANSPARENCIA (Cambia este valor del 0.0 al 1.0) ---
 # 0.85 significa que se ve el color pero deja pasar un poco el fondo naranja
-opacidad = 0.85 
+opacidad = 0.7 
 
 # 2. ESTILOS BASE (CON SOMBRAS Y TRANSPARENCIAS)
 st.markdown(f"""
@@ -64,7 +64,7 @@ st.markdown(f"""
     .stButton>button {{ border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }}
     
     .install-box {{
-        background-color: rgba(255,255,255,0.2); border: 1px dashed white;
+        background-color: rgba(255,255,255,0.0); border: 1px dashed white;
         padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
     }}
     </style>
@@ -84,7 +84,7 @@ try:
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     
-    es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
+    es_noche = datetime.now(tz).hour >= 23 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
