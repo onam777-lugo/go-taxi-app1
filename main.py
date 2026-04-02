@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM
+# 2. DISEÑO DE INTERFAZ PREMIUM (Actualizado con Barras Laterales)
 st.markdown("""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {
@@ -63,17 +63,32 @@ st.markdown("""
         margin-right: auto;
     }
 
+    /* Tarjetas de Choferes con Barra Lateral Dinámica */
     .driver-card {
         background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
-        padding: 15px; border-radius: 15px; border-left: 12px solid var(--status-color);
-        margin-bottom: 15px; box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+        padding: 0px; /* Quitamos padding para que la barra llegue al borde */
+        border-radius: 15px; 
+        margin-bottom: 15px; 
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+    }
+    
+    .card-status-bar {
+        width: 12px;
+        min-height: 100%;
+    }
+
+    .card-content {
+        padding: 15px;
+        flex-grow: 1;
     }
     
     .has-expander { border-radius: 15px 15px 0 0 !important; margin-bottom: -5px !important; }
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
     
-    /* MODIFICACIÓN PARA COLOR NARANJA EN "VER DATOS" */
     .stExpander { 
         background-color: #FEE0C0 !important; 
         border: none !important; 
@@ -82,12 +97,11 @@ st.markdown("""
     }
     
     .stExpander p {
-        color: #FF8C00 !important; /* Color Naranja */
+        color: #FF8C00 !important; 
         font-weight: 800 !important;
         text-transform: uppercase;
     }
 
-    /* Color de la flecha del expansor */
     .stExpander svg {
         fill: #FF8C00 !important;
     }
@@ -147,15 +161,18 @@ try:
                     bloquear = (sec['key'] == "No Laborando")
                     clase_tarjeta = "driver-card has-expander" if not bloquear else "driver-card"
 
+                    # TARJETA CON BARRA DE COLOR DINÁMICA
                     st.markdown(f"""
-                        <div class="{clase_tarjeta}" style="--status-color: {sec['color']};">
-                            <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
-                            <span style="color:#444; font-weight:600;">📱 {telf_fmt}</span>
+                        <div class="{clase_tarjeta}">
+                            <div class="card-status-bar" style="background-color: {sec['color']};"></div>
+                            <div class="card-content">
+                                <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
+                                <span style="color:#444; font-weight:600;">📱 {telf_fmt}</span>
+                            </div>
                         </div>
                     """, unsafe_allow_html=True)
 
                     if not bloquear:
-                        # Texto cambiado a "VER DATOS" con estilo naranja aplicado vía CSS
                         with st.expander("VER DATOS"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
                             st.code(pago, language=None) 
@@ -175,4 +192,4 @@ try:
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white;'>Sincronizando flota...</p>", unsafe_allow_html=True)
-                    
+        
