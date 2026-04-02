@@ -126,7 +126,7 @@ try:
 
                     if key != "No Laborando":
                         with st.expander("VER DATOS"):
-                            st.markdown(f"<b style='color:{colores['text']}'>💳 PAGO MÓVIL / DATOS:</b>", unsafe_allow_html=True)
+                            st.markdown(f"<b style='color:{colores['#0F2A1D']}'>💳 PAGO MÓVIL / DATOS:</b>", unsafe_allow_html=True)
                             st.code(fila['DATOSPAGO'], language=None) 
                             c1, c2 = st.columns(2)
                             with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
