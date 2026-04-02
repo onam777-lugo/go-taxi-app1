@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. DISEÑO DE INTERFAZ PREMIUM (CORRECCIÓN DE ESQUINAS)
+# 2. DISEÑO DE INTERFAZ PREMIUM (Rediseño de Esquinas)
 st.markdown("""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {
@@ -50,17 +50,16 @@ st.markdown("""
         width: 60%; margin-left: auto; margin-right: auto;
     }
 
-    /* TARJETA PRINCIPAL: Elevada para tapar la unión */
+    /* TARJETA PRINCIPAL: Se une al expander por abajo */
     .driver-card {
         background: linear-gradient(145deg, #FEE0C0, #f7d4b0);
         padding: 0px !important; 
-        border-radius: 15px; 
-        margin-bottom: 0px !important; /* Quitamos margen para que el expander pegue */
+        border-radius: 15px 15px 0 0 !important; /* Esquinas de arriba redondeadas, abajo cuadradas */
+        margin-bottom: 0px !important; 
         box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
         display: flex;
         overflow: hidden;
         position: relative;
-        z-index: 10 !important; /* Por encima de todo */
     }
     
     .status-bar { width: 14px; min-height: 100%; }
@@ -68,29 +67,28 @@ st.markdown("""
     .name-text { font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }
     .code-tag { background-color: black; color: #FF8C00 !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }
     
-    /* EXPANDER: Ajuste milimétrico para las esquinas */
+    /* EXPANDER: Rediseñado para integrarse como base redondeada */
     .stExpander { 
-        background-color: #FEE0C0 !important; 
+        background-color: rgba(0, 0, 0, 0.15) !important; /* Color oscuro que sirve de sombra visual */
         border: none !important; 
-        border-radius: 0 0 15px 15px !important; 
-        margin-top: -20px !important; /* Sube para meterse bajo la tarjeta */
-        margin-left: 10px !important; 
-        margin-right: 10px !important;
+        border-radius: 0 0 15px 15px !important; /* Las esquinas inferiores son redondeadas */
+        margin-top: 0px !important; /* Se pega a la tarjeta */
+        margin-left: 0px !important; 
+        margin-right: 0px !important;
         margin-bottom: 20px !important;
-        z-index: 1 !important;
         overflow: hidden !important;
     }
     
-    /* Quitar bordes internos de Streamlit que causan las líneas blancas */
+    /* Quitar bordes internos y ajustar el resumen del expansor */
     .stExpander details { border: none !important; }
     .stExpander summary { 
-        background-color: #f7d4b0 !important; 
-        border-radius: 0 0 15px 15px !important;
-        padding-top: 15px !important;
+        background-color: transparent !important; /* No tapamos la sombra */
+        padding-top: 10px !important;
+        color: rgba(255, 255, 255, 0.8) !important; /* El texto resalta sobre el color oscuro */
     }
 
-    .stExpander p { color: #FF8C00 !important; font-weight: 800 !important; text-transform: uppercase; }
-    .stExpander svg { fill: #FF8C00 !important; }
+    .stExpander p { color: #FEE0C0 !important; font-weight: 800 !important; text-transform: uppercase; }
+    .stExpander svg { fill: #FEE0C0 !important; } /* Icono del mismo color que el texto */
     
     .stButton>button { border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }
     
@@ -116,7 +114,7 @@ try:
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     
-    # CAMBIO SOLICITADO: 10 PM (22) a 6 AM
+    # Horario: 10 PM (22) a 6 AM
     es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
@@ -153,7 +151,7 @@ try:
                         </div>
                     """, unsafe_allow_html=True)
 
-                    # EXPANDER CON AJUSTE LATERAL
+                    # EXPANDER INTEGRADO COMO BASE REDONDEADA
                     if not bloquear:
                         with st.expander("VER DATOS"):
                             st.markdown("**💳 PAGO MÓVIL / DATOS:**")
