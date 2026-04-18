@@ -25,7 +25,7 @@ st.markdown(f"""
     /* CABECERA NARANJA SIN BORDES (PANTALLA COMPLETA) */
     .header-curva {{
         background-color: #FF8C00;
-        height: 340px;
+        height: 320px;
         position: absolute;
         top: 0;
         left: -100vw; /* Extensión masiva a los lados */
