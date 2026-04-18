@@ -66,7 +66,7 @@ st.markdown(f"""
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 4px 20px;
+        padding: 0px 10px;
         font-size: 34px;    
         border-radius: 0px 30px 0px 30px; 
         font-weight: 800; 
