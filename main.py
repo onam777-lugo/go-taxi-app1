@@ -13,9 +13,10 @@ st.set_page_config(
 )
 
 # --- AJUSTE DE TRANSPARENCIA ---
+# 0.85 significa que se ve el color pero deja pasar un poco el fondo crema
 opacidad = 0.85 
 
-# 2. ESTILOS BASE (DISEÑO CURVO Y BICOLOR)
+# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO APILADO IDÉNTICO)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
@@ -34,7 +35,6 @@ st.markdown(f"""
         left: 0;
         width: 100%;
         z-index: 0;
-        /* Crea la forma curva en la base */
         clip-path: ellipse(120% 60% at 50% 40%);
     }}
 
@@ -46,10 +46,36 @@ st.markdown(f"""
         position: relative;
     }}
     
-    /* Logo estilo Imagen de Referencia */
-    .logo-container {{ text-align: center; padding-top: 60px; margin-bottom: 0px; }}
-    .go-text {{ color: white; font-size: 55px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }}
-    .taxi-text {{ background-color: black; color: white; padding: 2px 12px; border-radius: 10px; font-size: 42px; font-weight: 900; margin-left: 8px; vertical-align: middle; }}
+    /* MODIFICACIÓN: Logo estilo Imagen de Referencia (Apilado e Idéntico) */
+    .logo-container-stacked {{ 
+        text-align: center; 
+        padding-top: 60px; /* Un poco más de espacio arriba */
+        margin-bottom: 0px; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }}
+    .go-line {{ 
+        color: white; 
+        font-size: 65px; /* Un poco más grande para el impacto visual */
+        font-weight: 900; 
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        margin-bottom: -10px; /* Sube un poco la segunda línea */
+    }}
+    .taxi-line {{
+        margin-top: 0px;
+    }}
+    .taxi-box {{ 
+        background-color: black; 
+        color: white; 
+        padding: 2px 10px; /* Reducido */
+        border-radius: 8px; /* Ajustado */
+        font-size: 28px; /* Notablemente más pequeño, idéntico a la imagen */
+        font-weight: 800; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }}
+    
     .brand-subtitle {{ text-align: center; color: black !important; font-weight: 800; font-size: 13px; letter-spacing: 2px; margin-top: -5px; margin-bottom: 35px; }}
     
     /* Tarjeta de Tarifa Blanca con Sombra */
@@ -120,8 +146,15 @@ st.markdown(f"""
 # Div para la curva naranja de fondo
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Encabezado con Logo
-st.markdown('<div class="logo-container"><span class="go-text">¡Go!</span><span class="taxi-text">TAXI</span></div>', unsafe_allow_html=True)
+# MODIFICACIÓN: Encabezado con Logo Apilado (Idéntico a imagen de referencia)
+st.markdown("""
+    <div class="logo-container-stacked">
+        <div class="go-line">¡Go!</div>
+        <div class="taxi-line">
+            <span class="taxi-box">TAXI</span>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 st.markdown('<p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE DATOS
@@ -132,7 +165,7 @@ try:
     
     precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
     
-    # Tarjeta de Tarifa (Actúa como puente)
+    # Tarjeta de Tarifa (Blanca)
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:800; color:#888; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
