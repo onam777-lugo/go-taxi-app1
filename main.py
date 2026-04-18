@@ -15,7 +15,7 @@ st.set_page_config(
 # --- AJUSTE DE TRANSPARENCIA ---
 opacidad = 0.85 
 
-# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO DEFINITIVO)
+# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO PERFECCIONADO)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
@@ -45,7 +45,7 @@ st.markdown(f"""
         position: relative;
     }}
     
-    /* LOGO MAESTRO: ¡Go! TAXI Apilado */
+    /* LOGO MAESTRO REFINADO: ¡Go! TAXI */
     .logo-container-stacked {{ 
         text-align: center; 
         padding-top: 50px;
@@ -59,7 +59,7 @@ st.markdown(f"""
         font-size: 70px; 
         font-weight: 900; 
         text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-        margin-bottom: -15px;
+        margin-bottom: -18px; /* Ajuste para acercar el texto */
         line-height: 1;
     }}
     .taxi-line {{
@@ -69,9 +69,9 @@ st.markdown(f"""
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 4px 15px; 
-        /* 3 BORDES REDONDEADOS Y EL INFERIOR IZQUIERDO RECTO (0px) */
-        border-radius: 10px 10px 10px 0px; 
+        padding: 1px 15px; /* ALTURA REDUCIDA */
+        /* ESQUINA SUPERIOR IZQUIERDA RECTA (0px) Y LAS DEMÁS REDONDEADAS */
+        border-radius: 0px 10px 10px 10px; 
         font-size: 26px; 
         font-weight: 800; 
         text-transform: uppercase;
@@ -86,7 +86,7 @@ st.markdown(f"""
         font-weight: 800; 
         font-size: 13px; 
         letter-spacing: 3px; 
-        margin-top: 5px; 
+        margin-top: 8px; 
         margin-bottom: 30px; 
     }}
     
@@ -117,7 +117,6 @@ st.markdown(f"""
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }}
 
-    /* Flecha a la derecha */
     .stExpander summary {{
         display: flex !important;
         flex-direction: row-reverse !important;
@@ -152,7 +151,7 @@ st.markdown(f"""
 # Fondo curvo
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Logo Stacked con etiqueta TAXI (Efecto cuadro en esquina)
+# Logo con los cambios solicitados (Altura reducida y esquina superior recta)
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
