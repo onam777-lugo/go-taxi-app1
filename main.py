@@ -27,7 +27,7 @@ st.markdown(f"""
         background-color: #FF8C00;
         height: 320px;
         position: absolute;
-        top: 0;
+        top: -100;
         left: -100vw; /* Extensión masiva a los lados */
         right: -100vw;
         margin: auto;
