@@ -12,32 +12,36 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- AJUSTE DE TRANSPARENCIA (Cambia este valor del 0.0 al 1.0) ---
-# 0.85 significa que se ve el color pero deja pasar un poco el fondo naranja
-opacidad = 0.7 
+# --- AJUSTE DE TRANSPARENCIA ---
+opacidad = 0.85 
 
-# 2. ESTILOS BASE (CON SOMBRAS Y TRANSPARENCIAS)
+# 2. ESTILOS BASE (ACTUALIZADOS SEGÚN LA IMAGEN)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
     .stApp {{ background-color: #FF8C00; margin-top: -30px !important; }}
     .block-container {{ padding-top: 1rem !important; max-width: 450px !important; padding-bottom: 5rem !important; }}
-    .brand-title {{ text-align: center; color: white !important; text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: -10px; font-size: 42px; font-weight: 900; padding-top: 80px; }}
-    .brand-subtitle {{ text-align: center; color: black !important; font-weight: 800; font-size: 14px; letter-spacing: 2px; margin-bottom: 25px; }}
     
+    /* Logo estilo Imagen de Referencia */
+    .logo-container {{ text-align: center; padding-top: 50px; margin-bottom: 0px; }}
+    .go-text {{ color: white; font-size: 55px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }}
+    .taxi-text {{ background-color: black; color: white; padding: 2px 12px; border-radius: 10px; font-size: 42px; font-weight: 900; margin-left: 8px; vertical-align: middle; }}
+    .brand-subtitle {{ text-align: center; color: black !important; font-weight: 800; font-size: 13px; letter-spacing: 2px; margin-top: -5px; margin-bottom: 25px; }}
+    
+    /* Tarjeta de Tarifa (Blanca como en la imagen) */
     .tarifa-container {{
-        background-color: rgba(0, 0, 0, 0.5); color: white; 
-        padding: 8px 12px; border-radius: 12px; text-align: center; 
-        margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1);
-        width: 60%; margin-left: auto; margin-right: auto;
+        background-color: white; 
+        padding: 15px; border-radius: 18px; text-align: center; 
+        margin-bottom: 30px; 
+        box-shadow: 0px 8px 20px rgba(0,0,0,0.15);
+        width: 85%; margin-left: auto; margin-right: auto;
     }}
 
-    /* Contenedor de Tarjeta con Sombra Profunda */
     .driver-card {{
         padding: 0px !important; 
         border-radius: 15px !important; 
         margin-bottom: 0px !important; 
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.25); 
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2); 
         display: flex;
         overflow: hidden;
         position: relative;
@@ -49,28 +53,36 @@ st.markdown(f"""
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }}
 
-    /* Expander con Sombra */
+    /* Mover flecha del expander a la derecha */
+    .stExpander summary {{
+        display: flex !important;
+        flex-direction: row-reverse !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding-right: 15px !important;
+    }}
+    
     .stExpander {{ 
         border: none !important; 
         border-radius: 15px !important; 
         margin-top: -10px !important; 
         margin-bottom: 20px !important;
         overflow: hidden !important;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
     }}
-    .stExpander details {{ border: none !important; }}
-    .stExpander summary {{ padding-top: 15px !important; }}
     
     .stButton>button {{ border-radius: 12px !important; height: 50px !important; font-weight: 700 !important; text-transform: uppercase; }}
     
     .install-box {{
-        background-color: rgba(255,255,255,0.0); border: 1px dashed white;
+        background-color: rgba(255,255,255,0.2); border: 1px dashed white;
         padding: 15px; border-radius: 15px; text-align: center; color: white; margin-top: 30px;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="brand-title">¡Go! TAXI</h1><p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
+# Encabezado con el nuevo Logo
+st.markdown('<div class="logo-container"><span class="go-text">¡Go!</span><span class="taxi-text">TAXI</span></div>', unsafe_allow_html=True)
+st.markdown('<p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
 
 # 3. LÓGICA DE DATOS
 try:
@@ -79,18 +91,23 @@ try:
     df = conn.read(spreadsheet=url, ttl=0) 
     
     precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
-    st.markdown(f'<div class="tarifa-container"><p style="margin:0; font-size:10px; font-weight:700; color:#FF8C00; letter-spacing:1px; line-height:1;">TARIFA MÍNIMA HOY</p><p style="margin:0; font-size:22px; font-weight:900; line-height:1;">Bs. {precio_vuelo}</p></div>', unsafe_allow_html=True)
+    
+    # Tarjeta de Tarifa Blanca
+    st.markdown(f"""
+        <div class="tarifa-container">
+            <p style="margin:0; font-size:11px; font-weight:800; color:#555; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
+            <p style="margin:0; font-size:32px; font-weight:900; color:black;">Bs. {precio_vuelo}</p>
+        </div>
+    """, unsafe_allow_html=True)
 
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
-    
     es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
 
-    # CONFIGURACIÓN DE COLORES CON TRANSPARENCIA
     config_estatus = {
         "Disponible": {"bg": f"rgba(232, 245, 233, {opacidad})", "bar": "#28a745", "shadow": f"rgba(200, 230, 201, {opacidad})", "text": "#1B5E20", "emoji": "🟢"},
         "Ocupado": {"bg": f"rgba(255, 253, 231, {opacidad})", "bar": "#f1c40f", "shadow": f"rgba(255, 249, 196, {opacidad})", "text": "#F57F17", "emoji": "🟡"},
@@ -101,7 +118,6 @@ try:
         if 'ESTATUS' in df.columns:
             grupo = df[df['ESTATUS'] == key]
             if not grupo.empty:
-                # TÍTULO DE SECCIÓN CON EMOJI (Línea de escaneo)
                 st.markdown(f"<p style='color: white; font-weight: 800; margin-bottom: 8px; letter-spacing: 1px;'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
                 
                 for _, fila in grupo.iterrows():
@@ -134,11 +150,10 @@ try:
                     else:
                         st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
-    # Footer y Reclamos
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
     st.markdown("<p style='text-align:center; color:white; font-weight:bold;'>Sincronizando flota... Por favor espera.</p>", unsafe_allow_html=True)
-                        
+    
