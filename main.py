@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS BASE (LOGO GRANDE Y PERSONALIZABLE)
+# 2. ESTILOS BASE (LOGO PERSONALIZABLE Y SOMBRAS EN TARJETAS)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
@@ -21,7 +21,7 @@ st.markdown(f"""
 
     .header-curva {{
         background-color: #FF8C00;
-        height: 320px; /* Aumentado para dar espacio al logo grande */
+        height: 320px;
         position: absolute;
         top: 0; left: 0; width: 100%;
         z-index: 0;
@@ -35,7 +35,7 @@ st.markdown(f"""
         position: relative;
     }}
     
-    /* --- SECCIÓN DEL LOGO --- */
+    /* SECCIÓN DEL LOGO */
     .logo-container-stacked {{ 
         text-align: center; 
         padding-top: 40px;
@@ -46,7 +46,7 @@ st.markdown(f"""
 
     .go-line {{ 
         color: white; 
-        font-size: 110px; /* <--- AQUÍ CAMBIAS EL TAMAÑO DEL ¡Go! */
+        font-size: 110px; 
         font-weight: 900; 
         text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
         margin-bottom: -25px; 
@@ -56,11 +56,9 @@ st.markdown(f"""
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        /* AJUSTE DE TAMAÑO DE LA ETIQUETA NEGRA: */
-        padding: 2px 18px;  /* 1er num: alto / 2do num: ancho */
-        font-size: 32px;    /* Tamaño de la letra TAXI */
-        
-        border-radius: 0px 12px 12px 12px; /* Esquina superior izq cuadrada */
+        padding: 2px 18px;  /* Altura / Ancho */
+        font-size: 32px;    
+        border-radius: 0px 12px 12px 12px; 
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
@@ -78,30 +76,55 @@ st.markdown(f"""
         margin-bottom: 25px; 
     }}
     
-    /* Estilos de Tarjetas */
+    /* --- TARJETA DE TARIFA --- */
     .tarifa-container {{
-        background-color: white; padding: 15px; border-radius: 20px; text-align: center; 
-        margin-bottom: 30px; box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+        background-color: white; 
+        padding: 15px; border-radius: 20px; text-align: center; 
+        margin-bottom: 30px; 
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.12); /* Sombra más fuerte */
         width: 90%; margin-left: auto; margin-right: auto;
     }}
 
+    /* --- TARJETAS DE CHOFERES (CON SOMBRA MEJORADA) --- */
     .driver-card {{
-        padding: 0px; border-radius: 15px; display: flex;
-        overflow: hidden; border: 1px solid rgba(0,0,0,0.03);
+        padding: 0px; 
+        border-radius: 15px; 
+        display: flex;
+        overflow: hidden; 
         background-color: white;
+        /* Sombra para que no se ligue con el fondo crema */
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.08), 0px 2px 4px rgba(0,0,0,0.04);
+        margin-bottom: 0px;
+        border: 1px solid rgba(0,0,0,0.02);
     }}
+    
     .status-bar {{ width: 14px; min-height: 100%; }}
     .card-info {{ padding: 15px; flex-grow: 1; }}
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; margin-left: 5px; }}
 
-    .stExpander {{ border: none !important; border-radius: 15px !important; margin-top: -12px !important; margin-bottom: 25px !important; }}
+    /* Estilo para los expanders que contienen los datos */
+    .stExpander {{ 
+        border: none !important; 
+        border-radius: 0px 0px 15px 15px !important; 
+        margin-top: -10px !important; 
+        margin-bottom: 25px !important;
+        box-shadow: 0px 8px 15px rgba(0,0,0,0.05);
+    }}
+    
+    .section-title {{
+        font-weight: 800; 
+        font-size: 14px; 
+        margin-left: 10px; 
+        margin-top: 15px;
+        color: #333;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Logo con ¡Go! Gigante
+# Logo
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -141,7 +164,7 @@ try:
         if 'ESTATUS' in df.columns:
             grupo = df[df['ESTATUS'] == key]
             if not grupo.empty:
-                st.markdown(f"<p style='font-weight:800; font-size:14px; margin-left:10px;'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p class='section-title'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
                 for _, fila in grupo.iterrows():
                     telf_raw = str(fila['TELEFONO']).split('.')[0].replace(" ", "").replace("-", "")
                     codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
@@ -162,5 +185,5 @@ try:
                         with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
 except Exception as e:
-    st.error("Error al cargar datos")
+    st.error("Error al conectar con la flota")
     
