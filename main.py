@@ -12,27 +12,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- AJUSTE DE TRANSPARENCIA ---
-opacidad = 0.85 
-
-# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO PERFECCIONADO)
+# 2. ESTILOS BASE (LOGO GRANDE Y PERSONALIZABLE)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
     
-    /* Fondo General Crema */
-    .stApp {{ 
-        background-color: #FFFDF5 !important; 
-    }}
+    .stApp {{ background-color: #FFFDF5 !important; }}
 
-    /* Cabecera Naranja con Curva */
     .header-curva {{
         background-color: #FF8C00;
-        height: 280px;
+        height: 320px; /* Aumentado para dar espacio al logo grande */
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
+        top: 0; left: 0; width: 100%;
         z-index: 0;
         clip-path: ellipse(120% 60% at 50% 40%);
     }}
@@ -40,39 +31,36 @@ st.markdown(f"""
     .block-container {{ 
         padding-top: 0rem !important; 
         max-width: 450px !important; 
-        padding-bottom: 5rem !important; 
         z-index: 1;
         position: relative;
     }}
     
-    /* LOGO MAESTRO REFINADO: ¡Go! TAXI */
+    /* --- SECCIÓN DEL LOGO --- */
     .logo-container-stacked {{ 
         text-align: center; 
-        padding-top: 50px;
-        margin-bottom: 5px; 
+        padding-top: 40px;
         display: flex;
         flex-direction: column;
         align-items: center;
     }}
+
     .go-line {{ 
         color: white; 
-        font-size: 70px; 
+        font-size: 110px; /* <--- AQUÍ CAMBIAS EL TAMAÑO DEL ¡Go! */
         font-weight: 900; 
-        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-        margin-bottom: -18px; /* Ajuste para acercar el texto */
+        text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+        margin-bottom: -25px; 
         line-height: 1;
     }}
-    .taxi-line {{
-        margin-top: 0px;
-        z-index: 2;
-    }}
+
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 1px 15px; /* ALTURA REDUCIDA */
-        /* ESQUINA SUPERIOR IZQUIERDA RECTA (0px) Y LAS DEMÁS REDONDEADAS */
-        border-radius: 0px 10px 10px 10px; 
-        font-size: 26px; 
+        /* AJUSTE DE TAMAÑO DE LA ETIQUETA NEGRA: */
+        padding: 2px 18px;  /* 1er num: alto / 2do num: ancho */
+        font-size: 32px;    /* Tamaño de la letra TAXI */
+        
+        border-radius: 0px 12px 12px 12px; /* Esquina superior izq cuadrada */
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
@@ -84,74 +72,36 @@ st.markdown(f"""
         text-align: center; 
         color: black !important; 
         font-weight: 800; 
-        font-size: 13px; 
+        font-size: 14px; 
         letter-spacing: 3px; 
-        margin-top: 8px; 
-        margin-bottom: 30px; 
+        margin-top: 15px; 
+        margin-bottom: 25px; 
     }}
     
-    /* Tarjeta de Tarifa Blanca */
+    /* Estilos de Tarjetas */
     .tarifa-container {{
-        background-color: white; 
-        padding: 15px; border-radius: 20px; text-align: center; 
-        margin-bottom: 30px; 
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+        background-color: white; padding: 15px; border-radius: 20px; text-align: center; 
+        margin-bottom: 30px; box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
         width: 90%; margin-left: auto; margin-right: auto;
-        border: 1px solid rgba(0,0,0,0.05);
     }}
 
-    /* Tarjetas de Choferes */
     .driver-card {{
-        padding: 0px !important; 
-        border-radius: 15px !important; 
-        margin-bottom: 0px !important; 
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.06); 
-        display: flex;
-        overflow: hidden;
-        position: relative;
-        z-index: 2;
-        border: 1px solid rgba(0,0,0,0.03);
+        padding: 0px; border-radius: 15px; display: flex;
+        overflow: hidden; border: 1px solid rgba(0,0,0,0.03);
+        background-color: white;
     }}
     .status-bar {{ width: 14px; min-height: 100%; }}
     .card-info {{ padding: 15px; flex-grow: 1; }}
-    .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; display: block; }}
-    .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; margin-left: 5px; }}
+    .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; }}
+    .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; margin-left: 5px; }}
 
-    .stExpander summary {{
-        display: flex !important;
-        flex-direction: row-reverse !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding-right: 20px !important;
-    }}
-    
-    .stExpander {{ 
-        border: none !important; 
-        border-radius: 15px !important; 
-        margin-top: -12px !important; 
-        margin-bottom: 25px !important;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.04);
-    }}
-
-    .section-title {{
-        color: #333 !important;
-        font-weight: 800;
-        margin-bottom: 10px;
-        font-size: 14px;
-        letter-spacing: 1px;
-    }}
-    
-    .install-box {{
-        background-color: white; border: 1px dashed #FF8C00;
-        padding: 15px; border-radius: 15px; text-align: center; color: #555; margin-top: 30px;
-    }}
+    .stExpander {{ border: none !important; border-radius: 15px !important; margin-top: -12px !important; margin-bottom: 25px !important; }}
     </style>
     """, unsafe_allow_html=True)
 
-# Fondo curvo
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Logo con los cambios solicitados (Altura reducida y esquina superior recta)
+# Logo con ¡Go! Gigante
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -181,55 +131,36 @@ try:
     tz = pytz.timezone('America/Caracas')
     es_noche = datetime.now(tz).hour >= 22 or datetime.now(tz).hour < 6
 
-    if es_noche:
-        st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
-        df['ESTATUS'] = 'No Laborando'
-
     config_estatus = {
-        "Disponible": {"bg": "white", "bar": "#28a745", "shadow": "#F5FFF5", "text": "#1B5E20", "emoji": "🟢"},
-        "Ocupado": {"bg": "white", "bar": "#f1c40f", "shadow": "#FFFFF5", "text": "#F57F17", "emoji": "🟡"},
-        "No Laborando": {"bg": "white", "bar": "#dc3545", "shadow": "#FFF5F5", "text": "#B71C1C", "emoji": "🔴"}
+        "Disponible": {"bar": "#28a745", "emoji": "🟢"},
+        "Ocupado": {"bar": "#f1c40f", "emoji": "🟡"},
+        "No Laborando": {"bar": "#dc3545", "emoji": "🔴"}
     }
 
     for key, colores in config_estatus.items():
         if 'ESTATUS' in df.columns:
             grupo = df[df['ESTATUS'] == key]
             if not grupo.empty:
-                st.markdown(f"<p class='section-title'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
-                
+                st.markdown(f"<p style='font-weight:800; font-size:14px; margin-left:10px;'>{colores['emoji']} {key.upper()}</p>", unsafe_allow_html=True)
                 for _, fila in grupo.iterrows():
                     telf_raw = str(fila['TELEFONO']).split('.')[0].replace(" ", "").replace("-", "")
                     codigo = str(fila['CODIGO']).split('.')[0] if 'CODIGO' in df.columns else "---"
                     
                     st.markdown(f"""
-                        <style>
-                        div[data-testid="stExpander"]:has(summary:contains("VER DATOS")) {{
-                            background-color: {colores['shadow']} !important;
-                        }}
-                        </style>
-                        <div class="driver-card" style="background-color: {colores['bg']};">
+                        <div class="driver-card">
                             <div class="status-bar" style="background-color: {colores['bar']};"></div>
                             <div class="card-info">
-                                <span class="name-text" style="color: #1a1a1a !important;">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span>
+                                <span class="name-text">{fila['NOMBRE']} <span class="code-tag">#{codigo}</span></span><br>
                                 <span style="color:#666; font-weight:600; font-size: 14px;">📱 +58 {telf_raw[0:3]} {telf_raw[3:6]} {telf_raw[6:]}</span>
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
-
-                    if key != "No Laborando":
-                        with st.expander("VER DATOS"):
-                            st.markdown(f"<b style='color:#333'>💳 PAGO MÓVIL / DATOS:</b>", unsafe_allow_html=True)
-                            st.code(fila['DATOSPAGO'], language=None) 
-                            c1, c2 = st.columns(2)
-                            with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
-                    else:
-                        st.markdown("<div style='margin-bottom:25px;'></div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold; color:#FF8C00;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
+                    with st.expander("VER DATOS"):
+                        st.code(fila['DATOSPAGO'], language=None) 
+                        c1, c2 = st.columns(2)
+                        with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                        with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
 
 except Exception as e:
-    st.markdown("<p style='text-align:center; color:#555; font-weight:bold;'>Sincronizando flota... Por favor espera.</p>", unsafe_allow_html=True)
+    st.error("Error al cargar datos")
     
