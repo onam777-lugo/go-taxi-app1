@@ -12,24 +12,32 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS CSS COMPLETOS
+# 2. ESTILOS CSS PARA FONDO TOTAL Y COMPONENTES
 st.markdown(f"""
     <style>
+    /* Ocultar elementos de Streamlit */
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
+    [data-testid="stDecoration"] {{ display: none !important; }}
     
-    /* Fondo Crema */
+    /* Fondo general de la App */
     .stApp {{ background-color: #FFFDF5 !important; }}
 
-    /* Cabecera Naranja Curva */
+    /* CABECERA NARANJA SIN BORDES (PANTALLA COMPLETA) */
     .header-curva {{
         background-color: #FF8C00;
-        height: 320px;
+        height: 340px;
         position: absolute;
-        top: 0; left: 0; width: 100%;
+        top: 0;
+        left: -100vw; /* Extensión masiva a los lados */
+        right: -100vw;
+        margin: auto;
+        width: 300vw; /* Asegura que cubra cualquier ancho de pantalla */
         z-index: 0;
-        clip-path: ellipse(120% 60% at 50% 40%);
+        /* Curva elegante en la parte inferior */
+        clip-path: ellipse(40% 55% at 50% 45%);
     }}
 
+    /* Ajuste del contenedor para que el contenido no flote */
     .block-container {{ 
         padding-top: 0rem !important; 
         max-width: 450px !important; 
@@ -40,7 +48,7 @@ st.markdown(f"""
     /* LOGO ¡Go! TAXI */
     .logo-container-stacked {{ 
         text-align: center; 
-        padding-top: 40px;
+        padding-top: 50px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -48,19 +56,19 @@ st.markdown(f"""
 
     .go-line {{ 
         color: white; 
-        font-size: 110px; 
+        font-size: 115px; 
         font-weight: 900; 
         text-shadow: 4px 4px 8px rgba(0,0,0,0.3);
-        margin-bottom: -25px; 
+        margin-bottom: -28px; 
         line-height: 1;
     }}
 
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 0px 15px;
-        font-size: 32px;    
-        border-radius: 0px 30px 0px 30px; 
+        padding: 4px 20px;
+        font-size: 34px;    
+        border-radius: 0px 12px 12px 12px; 
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
@@ -78,7 +86,7 @@ st.markdown(f"""
         margin-bottom: 25px; 
     }}
     
-    /* TARJETAS Y SOMBRAS */
+    /* TARJETAS CON SOMBRAS */
     .tarifa-container {{
         background-color: white; padding: 15px; border-radius: 20px; text-align: center; 
         margin-bottom: 30px; box-shadow: 0px 10px 30px rgba(0,0,0,0.12);
@@ -97,7 +105,7 @@ st.markdown(f"""
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; margin-left: 5px; }}
 
-    /* COLOR NARANJA PARA "VER DATOS" */
+    /* VER DATOS EN NARANJA */
     .stExpander summary p {{
         color: #FF8C00 !important;
         font-weight: 800 !important;
@@ -123,10 +131,10 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# Fondo naranja curvo
+# Fondo naranja que ahora llena toda la pantalla superior
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Render del Logo
+# Logo
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -137,19 +145,18 @@ st.markdown("""
 """, unsafe_allow_html=True)
 st.markdown('<p class="brand-subtitle">TU RUTA SEGURA EN PÍRITU</p>', unsafe_allow_html=True)
 
-# 3. LÓGICA DE DATOS Y CONEXIÓN
+# 3. LÓGICA DE DATOS
 try:
     conn = st.connection("gsheets", type=GSheetsConnection)
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
     
-    # Obtener precio de la columna J (índice 9)
-    precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
+    precio_minimo = df.columns[9] if len(df.columns) > 9 else "---"
     
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:800; color:#888; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
-            <p style="margin:0; font-size:36px; font-weight: 900; color:#1a1a1a;">Bs. {precio_vuelo}</p>
+            <p style="margin:0; font-size:36px; font-weight: 900; color:#1a1a1a;">Bs. {precio_minimo}</p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -158,7 +165,6 @@ try:
     ahora = datetime.now(tz)
     es_noche = ahora.hour >= 22 or ahora.hour < 6
 
-    # Control de Horario
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
         df['ESTATUS'] = 'No Laborando'
@@ -169,7 +175,6 @@ try:
         "No Laborando": {"bar": "#dc3545", "emoji": "🔴"}
     }
 
-    # Listado de Choferes
     for key, colores in config_estatus.items():
         if 'ESTATUS' in df.columns:
             grupo = df[df['ESTATUS'] == key]
@@ -202,5 +207,5 @@ try:
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
 
 except Exception as e:
-    st.error("Error de conexión. Reintenta en unos segundos.")
+    st.error("Sincronizando flota...")
     
