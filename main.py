@@ -60,7 +60,7 @@ st.markdown(f"""
         color: white; 
         padding: 0px 15px;
         font-size: 32px;    
-        border-radius: 0px 25px 0px 25px; 
+        border-radius: 0px 30px 0px 30px; 
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
