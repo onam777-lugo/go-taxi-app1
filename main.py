@@ -20,7 +20,7 @@ st.markdown(f"""
     [data-testid="stDecoration"] {{ display: none !important; }}
     
     /* Fondo general de la App */
-    .stApp {{ background-color: #6FDDFF !important; }}
+    .stApp {{ background-color: #DFFDFF !important; }}
 
     /* CABECERA NARANJA SIN BORDES (PANTALLA COMPLETA) */
     .header-curva {{
