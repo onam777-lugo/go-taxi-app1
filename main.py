@@ -68,7 +68,7 @@ st.markdown(f"""
         color: white; 
         padding: 4px 20px;
         font-size: 34px;    
-        border-radius: 0px 12px 12px 12px; 
+        border-radius: 0px 30px 0px 30px; 
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
