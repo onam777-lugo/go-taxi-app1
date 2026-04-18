@@ -13,10 +13,9 @@ st.set_page_config(
 )
 
 # --- AJUSTE DE TRANSPARENCIA ---
-# 0.85 significa que se ve el color pero deja pasar un poco el fondo crema
 opacidad = 0.85 
 
-# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO APILADO IDÉNTICO)
+# 2. ESTILOS BASE (DISEÑO CURVO, BICOLOR Y LOGO DEFINITIVO)
 st.markdown(f"""
     <style>
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
@@ -46,39 +45,52 @@ st.markdown(f"""
         position: relative;
     }}
     
-    /* MODIFICACIÓN: Logo estilo Imagen de Referencia (Apilado e Idéntico) */
+    /* LOGO MAESTRO: ¡Go! TAXI Apilado */
     .logo-container-stacked {{ 
         text-align: center; 
-        padding-top: 60px; /* Un poco más de espacio arriba */
-        margin-bottom: 0px; 
+        padding-top: 50px;
+        margin-bottom: 5px; 
         display: flex;
         flex-direction: column;
         align-items: center;
     }}
     .go-line {{ 
         color: white; 
-        font-size: 65px; /* Un poco más grande para el impacto visual */
+        font-size: 70px; 
         font-weight: 900; 
-        text-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-        margin-bottom: -10px; /* Sube un poco la segunda línea */
+        text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        margin-bottom: -15px;
+        line-height: 1;
     }}
     .taxi-line {{
         margin-top: 0px;
+        z-index: 2;
     }}
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 2px 10px; /* Reducido */
-        border-radius: 8px; /* Ajustado */
-        font-size: 28px; /* Notablemente más pequeño, idéntico a la imagen */
+        padding: 4px 15px; 
+        /* 3 BORDES REDONDEADOS Y EL INFERIOR IZQUIERDO RECTO (0px) */
+        border-radius: 10px 10px 10px 0px; 
+        font-size: 26px; 
         font-weight: 800; 
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
+        display: inline-block;
+        box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
     }}
     
-    .brand-subtitle {{ text-align: center; color: black !important; font-weight: 800; font-size: 13px; letter-spacing: 2px; margin-top: -5px; margin-bottom: 35px; }}
+    .brand-subtitle {{ 
+        text-align: center; 
+        color: black !important; 
+        font-weight: 800; 
+        font-size: 13px; 
+        letter-spacing: 3px; 
+        margin-top: 5px; 
+        margin-bottom: 30px; 
+    }}
     
-    /* Tarjeta de Tarifa Blanca con Sombra */
+    /* Tarjeta de Tarifa Blanca */
     .tarifa-container {{
         background-color: white; 
         padding: 15px; border-radius: 20px; text-align: center; 
@@ -93,7 +105,7 @@ st.markdown(f"""
         padding: 0px !important; 
         border-radius: 15px !important; 
         margin-bottom: 0px !important; 
-        box-shadow: 0px 8px 16px rgba(0,0,0,0.08); 
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.06); 
         display: flex;
         overflow: hidden;
         position: relative;
@@ -112,8 +124,6 @@ st.markdown(f"""
         justify-content: space-between !important;
         align-items: center !important;
         padding-right: 20px !important;
-        color: #555 !important;
-        font-weight: 700 !important;
     }}
     
     .stExpander {{ 
@@ -121,16 +131,13 @@ st.markdown(f"""
         border-radius: 15px !important; 
         margin-top: -12px !important; 
         margin-bottom: 25px !important;
-        overflow: hidden !important;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.04);
     }}
 
-    /* Títulos de sección en negro para que resalten en el crema */
     .section-title {{
         color: #333 !important;
         font-weight: 800;
         margin-bottom: 10px;
-        margin-top: 10px;
         font-size: 14px;
         letter-spacing: 1px;
     }}
@@ -138,15 +145,14 @@ st.markdown(f"""
     .install-box {{
         background-color: white; border: 1px dashed #FF8C00;
         padding: 15px; border-radius: 15px; text-align: center; color: #555; margin-top: 30px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# Div para la curva naranja de fondo
+# Fondo curvo
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# MODIFICACIÓN: Encabezado con Logo Apilado (Idéntico a imagen de referencia)
+# Logo Stacked con etiqueta TAXI (Efecto cuadro en esquina)
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -165,7 +171,6 @@ try:
     
     precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
     
-    # Tarjeta de Tarifa (Blanca)
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:800; color:#888; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
@@ -182,8 +187,8 @@ try:
         df['ESTATUS'] = 'No Laborando'
 
     config_estatus = {
-        "Disponible": {"bg": "white", "bar": "#28a745", "shadow": "#F0FFF0", "text": "#1B5E20", "emoji": "🟢"},
-        "Ocupado": {"bg": "white", "bar": "#f1c40f", "shadow": "#FFFFF0", "text": "#F57F17", "emoji": "🟡"},
+        "Disponible": {"bg": "white", "bar": "#28a745", "shadow": "#F5FFF5", "text": "#1B5E20", "emoji": "🟢"},
+        "Ocupado": {"bg": "white", "bar": "#f1c40f", "shadow": "#FFFFF5", "text": "#F57F17", "emoji": "🟡"},
         "No Laborando": {"bg": "white", "bar": "#dc3545", "shadow": "#FFF5F5", "text": "#B71C1C", "emoji": "🔴"}
     }
 
@@ -222,7 +227,6 @@ try:
                     else:
                         st.markdown("<div style='margin-bottom:25px;'></div>", unsafe_allow_html=True)
 
-    # Footer
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold; color:#FF8C00;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     st.link_button("📩 CENTRAL DE RECLAMOS", "mailto:WorkflowDesignerOnam@gmail.com", use_container_width=True)
