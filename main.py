@@ -48,7 +48,7 @@ st.markdown(f"""
     /* LOGO ¡Go! TAXI */
     .logo-container-stacked {{ 
         text-align: center; 
-        padding-top: 70px;
+        padding-top: 30px;
         display: flex;
         flex-direction: column;
         align-items: center;
