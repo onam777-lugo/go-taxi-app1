@@ -28,16 +28,14 @@ st.markdown(f"""
         height: 405px;
         position: absolute;
         top: -100px;
-        left: -100vw; /* Extensión masiva a los lados */
+        left: -100vw;
         right: -100vw;
         margin: auto;
-        width: 300vw; /* Asegura que cubra cualquier ancho de pantalla */
+        width: 300vw;
         z-index: 0;
-        /* Curva elegante en la parte inferior */
         clip-path: ellipse(40% 55% at 50% 45%);
     }}
 
-    /* Ajuste del contenedor para que el contenido no flote */
     .block-container {{ 
         padding-top: 0rem !important; 
         max-width: 450px !important; 
@@ -86,7 +84,6 @@ st.markdown(f"""
         margin-bottom: 25px; 
     }}
     
-    /* TARJETAS CON SOMBRAS */
     .tarifa-container {{
         background-color: white; padding: 15px; border-radius: 20px; text-align: center; 
         margin-bottom: 30px; box-shadow: 0px 10px 30px rgba(0,0,0,0.12);
@@ -105,7 +102,6 @@ st.markdown(f"""
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; margin-left: 5px; }}
 
-    /* VER DATOS EN NARANJA */
     .stExpander summary p {{
         color: #FF8C00 !important;
         font-weight: 800 !important;
@@ -131,10 +127,8 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-# Fondo naranja que ahora llena toda la pantalla superior
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Logo
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -163,11 +157,15 @@ try:
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     ahora = datetime.now(tz)
+    
+    # REGLA DE HORARIO: 10 PM (22:00) a 6 AM
     es_noche = ahora.hour >= 22 or ahora.hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
-        df['ESTATUS'] = 'No Laborando'
+        # Forzar a todos a estatus No Laborando si es de noche
+        if 'ESTATUS' in df.columns:
+            df['ESTATUS'] = 'No Laborando'
 
     config_estatus = {
         "Disponible": {"bar": "#28a745", "emoji": "🟢"},
@@ -194,12 +192,17 @@ try:
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    with st.expander("VER DATOS"):
-                        st.markdown(f"<b style='color:#333'>💳 DATOS DE PAGO:</b>", unsafe_allow_html=True)
-                        st.code(fila['DATOSPAGO'], language=None) 
-                        c1, c2 = st.columns(2)
-                        with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                        with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    # CORRECCIÓN: Solo mostrar "VER DATOS" si NO es "No Laborando"
+                    if key != "No Laborando":
+                        with st.expander("VER DATOS"):
+                            st.markdown(f"<b style='color:#333'>💳 DATOS DE PAGO:</b>", unsafe_allow_html=True)
+                            st.code(fila['DATOSPAGO'], language=None) 
+                            c1, c2 = st.columns(2)
+                            with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    else:
+                        # Espacio para que las tarjetas no se peguen cuando no hay expander
+                        st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
     # SECCIONES FINALES
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold; color:#FF8C00;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
