@@ -12,32 +12,29 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# 2. ESTILOS CSS PARA FONDO TOTAL Y COMPONENTES
+# 2. ESTILOS CSS COMPLETOS (CON DISEÑO DE PANTALLA COMPLETA)
 st.markdown(f"""
     <style>
     /* Ocultar elementos de Streamlit */
     header, [data-testid="stHeader"], .stAppHeader {{ display: none !important; }}
     [data-testid="stDecoration"] {{ display: none !important; }}
     
-    /* Fondo general de la App */
     .stApp {{ background-color: #FFFDF5 !important; }}
 
-    /* CABECERA NARANJA SIN BORDES (PANTALLA COMPLETA) */
+    /* CABECERA NARANJA TOTAL (CUBRE ZONA SUPERIOR) */
     .header-curva {{
         background-color: #FF8C00;
-        height: 405px;
+        height: 380px;
         position: absolute;
-        top: -100px;
-        left: -100vw; /* Extensión masiva a los lados */
+        top: -100px; /* Sube para cubrir la zona de batería/señal */
+        left: -100vw;
         right: -100vw;
         margin: auto;
-        width: 300vw; /* Asegura que cubra cualquier ancho de pantalla */
+        width: 300vw;
         z-index: 0;
-        /* Curva elegante en la parte inferior */
         clip-path: ellipse(40% 55% at 50% 45%);
     }}
 
-    /* Ajuste del contenedor para que el contenido no flote */
     .block-container {{ 
         padding-top: 0rem !important; 
         max-width: 450px !important; 
@@ -45,10 +42,10 @@ st.markdown(f"""
         position: relative;
     }}
     
-    /* LOGO ¡Go! TAXI */
+    /* LOGO CONFIGURADO */
     .logo-container-stacked {{ 
         text-align: center; 
-        padding-top: 30px;
+        padding-top: 80px; /* Ajustado para el top negativo */
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -66,9 +63,9 @@ st.markdown(f"""
     .taxi-box {{ 
         background-color: black; 
         color: white; 
-        padding: 0px 10px;
+        padding: 4px 20px;
         font-size: 34px;    
-        border-radius: 0px 30px 0px 30px; 
+        border-radius: 0px 12px 12px 12px; /* Esquina superior izq cuadrada */
         font-weight: 800; 
         text-transform: uppercase;
         letter-spacing: 2px;
@@ -105,7 +102,7 @@ st.markdown(f"""
     .name-text {{ font-weight: 800; font-size: 20px; color: #1a1a1a !important; }}
     .code-tag {{ background-color: black; color: white !important; padding: 2px 8px; border-radius: 6px; font-size: 11px; margin-left: 5px; }}
 
-    /* VER DATOS EN NARANJA */
+    /* TEXTO "VER DATOS" EN NARANJA */
     .stExpander summary p {{
         color: #FF8C00 !important;
         font-weight: 800 !important;
@@ -126,15 +123,13 @@ st.markdown(f"""
     .install-box {{
         background-color: white; border: 1px dashed #FF8C00;
         padding: 15px; border-radius: 15px; text-align: center; color: #555; margin-top: 30px;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# Fondo naranja que ahora llena toda la pantalla superior
 st.markdown('<div class="header-curva"></div>', unsafe_allow_html=True)
 
-# Logo
+# Render del Logo
 st.markdown("""
     <div class="logo-container-stacked">
         <div class="go-line">¡Go!</div>
@@ -151,22 +146,25 @@ try:
     url = "https://docs.google.com/spreadsheets/d/1ClVwjiaV44TOWysCtqtyjkfAs6TbRMToMT6b7mQWTRc/edit?usp=sharing"
     df = conn.read(spreadsheet=url, ttl=0) 
     
-    precio_minimo = df.columns[9] if len(df.columns) > 9 else "---"
+    precio_vuelo = df.columns[9] if len(df.columns) > 9 else "---"
     
     st.markdown(f"""
         <div class="tarifa-container">
             <p style="margin:0; font-size:11px; font-weight:800; color:#888; letter-spacing:1px;">TARIFA MÍNIMA HOY</p>
-            <p style="margin:0; font-size:36px; font-weight: 900; color:#1a1a1a;">Bs. {precio_minimo}</p>
+            <p style="margin:0; font-size:36px; font-weight: 900; color:#1a1a1a;">Bs. {precio_vuelo}</p>
         </div>
     """, unsafe_allow_html=True)
 
     df.columns = df.columns.str.strip().str.upper()
     tz = pytz.timezone('America/Caracas')
     ahora = datetime.now(tz)
+    
+    # CORRECCIÓN DE HORARIO: 10PM (22) a 6AM
     es_noche = ahora.hour >= 22 or ahora.hour < 6
 
     if es_noche:
         st.markdown('<div style="background-color:#dc3545; color:white; padding:12px; border-radius:12px; text-align:center; font-weight:bold; margin-bottom:20px;">🌙 SERVICIO CERRADO (10PM - 6AM)</div>', unsafe_allow_html=True)
+        # Forzar a todos a no laborando si es de noche
         df['ESTATUS'] = 'No Laborando'
 
     config_estatus = {
@@ -194,12 +192,17 @@ try:
                         </div>
                     """, unsafe_allow_html=True)
                     
-                    with st.expander("VER DATOS"):
-                        st.markdown(f"<b style='color:#333'>💳 DATOS DE PAGO:</b>", unsafe_allow_html=True)
-                        st.code(fila['DATOSPAGO'], language=None) 
-                        c1, c2 = st.columns(2)
-                        with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
-                        with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    # CORRECCIÓN DE SEGURIDAD: Solo mostrar expander si NO es "No Laborando"
+                    if key != "No Laborando":
+                        with st.expander("VER DATOS"):
+                            st.markdown(f"<b style='color:#333'>💳 DATOS DE PAGO:</b>", unsafe_allow_html=True)
+                            st.code(fila['DATOSPAGO'], language=None) 
+                            c1, c2 = st.columns(2)
+                            with c1: st.link_button("📞 LLAMAR", f"tel:{telf_raw}", use_container_width=True)
+                            with c2: st.link_button("WHATSAPP", f"https://wa.me/58{telf_raw}", use_container_width=True)
+                    else:
+                        # Espacio estético si no hay expander
+                        st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
     # SECCIONES FINALES
     st.markdown('<div class="install-box"><p style="margin-bottom: 5px; font-weight: bold; color:#FF8C00;">📲 ¡INSTALA ESTA APP!</p><p style="font-size: 12px;">Toca los <b>3 puntos (⋮)</b> o <b>Compartir</b> y elige<br><b>"Agregar a pantalla de inicio"</b></p></div>', unsafe_allow_html=True)
